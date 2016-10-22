@@ -1,0 +1,10 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielnixon/progressive"
+  },
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "jsdom": "^9.8.0"
+  }
+}

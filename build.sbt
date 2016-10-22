@@ -1,0 +1,128 @@
+val scalaV = "2.11.8"
+val scalazVersion = "7.2.6"
+val circeVersion = "0.2.0"
+
+scalaVersion := scalaV
+
+import scalariform.formatter.preferences._
+
+lazy val commonSettings = Seq(
+  organization := "org.danielnixon.progressive",
+  licenses := Seq("GNU General Public License, Version 3" -> url("http://www.gnu.org/licenses/gpl-3.0.html")),
+  version := "0.1.0",
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value) {
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    } else {
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    }
+  },
+  homepage := Some(url("https://github.com/danielnixon/progressive")),
+  pomExtra := {
+    <scm>
+      <url>git@github.com:danielnixon/progressive.git</url>
+      <connection>scm:git:git@github.com:danielnixon/progressive.git</connection>
+    </scm>
+      <developers>
+        <developer>
+          <id>danielnixon</id>
+          <name>Daniel Nixon</name>
+          <url>https://danielnixon.org/</url>
+        </developer>
+      </developers>
+  },
+  scalaVersion := scalaV,
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-language:postfixOps",
+    "-language:implicitConversions",
+    "-Xlint:_",
+    "-Xfatal-warnings",
+    "-Ywarn-inaccessible",
+    "-Ywarn-unused",
+    "-Ywarn-unused-import",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-nullary-override"),
+  // scalariform
+  scalariformPreferences := scalariformPreferences.value
+    .setPreference(DoubleIndentClassDeclaration, true)
+    .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true),
+  // scapegoat
+  scapegoatVersion := "1.2.1",
+  scapegoatDisabledInspections := Seq("WildcardImport", "MethodNames"),
+  // wartremover
+  wartremoverErrors ++= Seq(
+    Wart.Any,
+    Wart.Any2StringAdd,
+    Wart.AsInstanceOf,
+    Wart.IsInstanceOf,
+    Wart.EitherProjectionPartial,
+    Wart.Enumeration,
+    Wart.Equals,
+    Wart.ExplicitImplicitTypes,
+    Wart.FinalCaseClass,
+    Wart.JavaConversions,
+    Wart.LeakingSealed,
+    Wart.ListOps,
+    Wart.MutableDataStructures,
+    Wart.Nothing,
+    Wart.Null,
+    Wart.OptionPartial,
+    Wart.Product,
+    Wart.Return,
+    Wart.Serializable,
+    Wart.Throw,
+    Wart.ToString,
+    Wart.TryPartial,
+    Wart.Var,
+    Wart.While)
+)
+
+lazy val root = Project(
+  id = "root",
+  base = file("."),
+  aggregate = Seq(client, sharedJs, sharedJvm)
+).settings(commonSettings: _*).settings(publishArtifact := false)
+
+lazy val client = (project in file("client")).
+  settings(commonSettings: _*).
+  settings(
+    name := "progressive-client",
+    persistLauncher := true,
+    persistLauncher in Test := false,
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "0.9.1",
+      "org.querki" %%% "jquery-facade" % "1.0-RC6",
+      "org.scalaz" %%% "scalaz-core" % scalazVersion,
+      "org.scalatest" %%% "scalatest" % "3.0.0" % Test
+    ),
+    jsDependencies ++= Seq(
+      "org.webjars.bower" % "jquery" % "3.1.1" / "3.1.1/dist/jquery.js",
+      "org.webjars.npm" % "virtual-dom" % "2.1.1" / "virtual-dom.js",
+      "org.webjars.npm" % "vdom-parser" % "1.3.4" / "dist.js",
+      RuntimeDOM % Test
+    ),
+    jsEnv := JSDOMNodeJSEnv().value
+  ).
+  enablePlugins(ScalaJSPlugin).
+  dependsOn(sharedJs)
+
+lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
+  settings(commonSettings: _*).
+  settings(
+    name := "progressive-shared",
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "scalatags" % "0.6.0",
+      "io.circe" %%% "circe-core" % circeVersion,
+      "io.circe" %%% "circe-parse" % circeVersion,
+      "io.circe" %%% "circe-generic" % circeVersion
+    )
+  )
+
+lazy val sharedJvm = shared.jvm
+lazy val sharedJs = shared.js
