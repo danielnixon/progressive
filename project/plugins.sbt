@@ -1,5 +1,5 @@
 // Scala.js
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.12")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.13")
 
 // linters
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.6.0")
