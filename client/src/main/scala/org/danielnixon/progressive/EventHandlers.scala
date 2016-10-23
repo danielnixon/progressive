@@ -7,7 +7,7 @@ trait EventHandlers {
 
   def additionalSetup(element: JQuery): Unit
 
-  def preFormSubmit(form: JQuery): Unit
+  def preFormSubmit(form: JQuery): Boolean
 
   def postFormSubmit(form: JQuery): Unit
 }

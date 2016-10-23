@@ -2,6 +2,7 @@ package org.danielnixon.progressive.services
 
 import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax.InputData
+import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
 
@@ -60,7 +61,7 @@ class AjaxService {
         if ((req.status >= 200 && req.status < 300) || req.status === 304) {
           promise.success(req)
         } else {
-          val fallbackErrorMessage = Option(req.responseText).filter(_.nonEmpty).getOrElse(req.statusText)
+          val fallbackErrorMessage = req.responseText.toOption.getOrElse(req.statusText)
           val ajaxResponse = AjaxResponse.fromJson(req.responseText)
           val message = ajaxResponse.flatMap(_.message).getOrElse(fallbackErrorMessage)
           val html = ajaxResponse.map(_.html).getOrElse(fallbackErrorMessage)

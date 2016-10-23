@@ -56,36 +56,45 @@ class TransitionsService(
     }
   }
 
-  private def handleResponse(response: AjaxResponse, trigger: JQuery, targetOpt: Option[JQuery], preRender: JQuery => Unit): Future[Unit] = {
-    val shouldReload = trigger.is("[data-reload]") || trigger.closest("form").is("[data-reload]")
-
-    if (shouldReload) {
+  private def handleResponse(
+    response: AjaxResponse,
+    targetOpt: Option[JQuery],
+    reloadPage: Boolean,
+    elemToRemove: Option[JQuery],
+    preRender: JQuery => Unit
+  ): Future[Unit] = {
+    if (reloadPage) {
       window.location.reload(true)
       Future.successful(())
     } else {
       response.message.foreach(announce)
 
-      val remove = trigger.attr("data-remove").exists(_ == "true") || trigger.closest("form").attr("data-remove").exists(_ == "true")
-      if (remove) {
-        val elemToRemove = trigger.closest(".item")
-        val fut = animationService.transitionOut(elemToRemove.headOption, None)
-        fut.onComplete(_ => elemToRemove.remove())
-        fut
-      } else {
-        targetOpt map { target =>
-          fadeIn(target, response.html, preRender)
-        } getOrElse {
-          Future.successful(())
-        }
+      elemToRemove match {
+        case Some(elem) =>
+          val fut = animationService.transitionOut(elem.headOption, None)
+          fut.onComplete(_ => elem.remove())
+          fut
+        case None =>
+          targetOpt map { target =>
+            fadeIn(target, response.html, preRender)
+          } getOrElse {
+            Future.successful(())
+          }
       }
     }
   }
 
   @SuppressWarnings(Array(Wart.Any))
-  def fadeOutFadeIn(request: Future[AjaxResponse], trigger: JQuery, targetOpt: Option[JQuery], preRender: JQuery => Unit): Future[Unit] = {
+  def fadeOutFadeIn(
+    request: Future[AjaxResponse],
+    targetOpt: Option[JQuery],
+    busyMessage: Option[String],
+    reloadPage: Boolean,
+    elemToRemove: Option[JQuery],
+    preRender: JQuery => Unit
+  ): Future[Unit] = {
 
     val animation = targetOpt.map { target =>
-      val busyMessage = trigger.attr("data-busy").orElse(trigger.closest("form").attr("data-busy")).toOption
       fadeOutAnimation(target, busyMessage)
     } getOrElse {
       Future.successful(())
@@ -94,7 +103,7 @@ class TransitionsService(
     val fut = for {
       response <- request
       _ <- animation
-      _ <- handleResponse(response, trigger, targetOpt, preRender)
+      _ <- handleResponse(response, targetOpt, reloadPage, elemToRemove, preRender)
     } yield ()
 
     fut.onFailure {

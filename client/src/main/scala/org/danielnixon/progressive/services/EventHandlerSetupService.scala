@@ -24,13 +24,13 @@ class EventHandlerSetupService(
 
     additionalSetupInitial(body)
 
-    body.on("click", "a[data-ajax=true]", ((element: Element) =>
+    body.on("click", "a[data-progressive]", ((element: Element) =>
       hijaxService.ajaxLinkClick(jQuery(element))): js.ThisFunction0[Element, _])
 
-    body.on("click", "form[data-ajax=true] button[type=submit]", ((element: Element) =>
+    body.on("click", "form[data-progressive] button[type=submit]", ((element: Element) =>
       hijaxService.ajaxSubmitButtonClick(jQuery(element))): js.ThisFunction0[Element, _])
 
-    body.on("submit", "form[data-ajax=true], form[data-confirm]", ((element: Element) =>
+    body.on("submit", "form[data-progressive]", ((element: Element) =>
       hijaxService.ajaxFormSubmit(jQuery(element))): js.ThisFunction0[Element, _])
 
     setup(body, refreshService)

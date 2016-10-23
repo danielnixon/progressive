@@ -1,13 +1,14 @@
 package org.danielnixon.progressive.shared.api
 
 import io.circe.{ Decoder, Encoder }
-import io.circe.generic.auto._
+import io.circe.generic.semiauto.deriveFor
 import org.danielnixon.progressive.shared.Wart
 
 sealed trait Target {
   override def toString: String
 }
 
+@SuppressWarnings(Array(Wart.AsInstanceOf))
 object Target {
 
   case object Next extends Target
@@ -16,9 +17,10 @@ object Target {
 
   case object ChildTarget extends Target
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def asJson(target: Target): String = Json.asJson(target)(implicitly[Encoder[Target]])
+  implicit val decoder: Decoder[Target] = deriveFor[Target].decoder
+  implicit val encoder: Encoder[Target] = deriveFor[Target].encoder
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def fromJson(json: String): Option[Target] = Json.fromJson(json)(implicitly[Decoder[Target]])
+  def asJson(target: Target): String = Json.asJson(target)
+
+  def fromJson(json: String): Option[Target] = Json.fromJson(json)
 }

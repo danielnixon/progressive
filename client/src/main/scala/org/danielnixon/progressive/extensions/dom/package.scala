@@ -1,5 +1,6 @@
 package org.danielnixon.progressive.extensions
 
+import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.scalajs.dom._
 
 package object dom {
@@ -15,6 +16,10 @@ package object dom {
     override def length: Int = nodes.length
 
     override def apply(idx: Int): T = nodes(idx)
+  }
+
+  implicit class ElementWrapper(val element: Element) extends AnyVal {
+    def getAttributeOpt(name: String): Option[String] = element.getAttribute(name).toOption
   }
 
 }

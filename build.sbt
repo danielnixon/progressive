@@ -86,8 +86,18 @@ lazy val commonSettings = Seq(
 lazy val root = Project(
   id = "root",
   base = file("."),
-  aggregate = Seq(client, sharedJs, sharedJvm)
+  aggregate = Seq(server, client, sharedJs, sharedJvm)
 ).settings(commonSettings: _*).settings(publishArtifact := false)
+
+lazy val server = (project in file("server")).
+  settings(commonSettings: _*).
+  settings(
+    name := "progressive-server",
+    libraryDependencies ++= Seq(
+      "org.scalaz" %%% "scalaz-core" % scalazVersion
+    )
+  ).
+  dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).
   settings(commonSettings: _*).

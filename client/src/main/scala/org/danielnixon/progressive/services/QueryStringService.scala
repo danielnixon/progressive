@@ -65,7 +65,7 @@ class QueryStringService {
       val name = input.getAttribute("name")
 
       val values = if (shouldInclude) {
-        if (input.hasAttribute("multiple")) {
+        if (input.multiple) {
           input.asInstanceOf[DataList].options.
             map(_.asInstanceOf[OptionElement]).
             filter(_.selected).
