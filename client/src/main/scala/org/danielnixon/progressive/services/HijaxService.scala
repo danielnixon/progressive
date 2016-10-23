@@ -70,7 +70,6 @@ class HijaxService(
         val newUri = updateQueryString(queryStringArray)
         historyService.pushState(newUri)
         val ajaxHref = settings.href.getOrElse(element.href)
-        targetOpt.foreach(target => refreshService.updateAutoRefresh(target, ajaxHref))
         val request = ajaxService.get(ajaxHref)
 
         fadeOutFadeIn(request.future, link, targetOpt, false, None, settings.busyMessage)

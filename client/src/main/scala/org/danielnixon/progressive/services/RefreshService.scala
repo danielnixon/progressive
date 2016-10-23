@@ -1,21 +1,23 @@
 package org.danielnixon.progressive.services
 
+import org.danielnixon.progressive.extensions.dom.ElementWrapper
 import org.danielnixon.progressive.extensions.jquery.{ JQuerySeq, JQueryWrapper }
 import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
+import org.danielnixon.progressive.shared.api.RefreshSettings
 import org.querki.jquery._
 import org.scalajs.dom.raw.HTMLElement
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.timers.setInterval
-import scalaz.Scalaz._
 
 class RefreshService(
     virtualDom: VirtualDom,
     vdomParser: VDomParser,
     eventHandlerSetupService: EventHandlerSetupService,
-    ajaxService: AjaxService
+    ajaxService: AjaxService,
+    applyDiff: JQuery => Boolean
 ) {
 
   private def vDomTarget(element: JQuery): HTMLElement = {
@@ -36,8 +38,7 @@ class RefreshService(
         val request = ajaxService.get(url)
         element.data("refresh-request", request)
         val fut = request.future.map { ajaxResponse =>
-          val shouldApplyDiff = userTriggered ||
-            element.find("[data-toggle=dropdown][aria-expanded=true], [aria-describedby^=tooltip]").length === 0
+          val shouldApplyDiff = userTriggered || applyDiff(element)
 
           if (shouldApplyDiff) {
             // Get existing virtual DOM.
@@ -70,13 +71,19 @@ class RefreshService(
   }
 
   def setupRefresh(element: JQuery): Unit = {
-    element.data("vdom", createVdom(element))
+    val div = element(0)
 
-    element.dataT[Double]("interval") map { interval =>
-      setInterval(interval) {
-        val paused = element.dataT[Boolean]("paused").getOrElse(false)
-        if (!paused) {
-          refresh(element, userTriggered = false)
+    div.getAttributeOpt("data-refresh").flatMap(RefreshSettings.fromJson) foreach { settings =>
+
+      element.data("vdom", createVdom(element))
+      element.data("refresh", settings.url)
+
+      settings.interval map { interval =>
+        setInterval(interval.toDouble) {
+          val paused = element.dataT[Boolean]("paused").getOrElse(false)
+          if (!paused) {
+            refresh(element, userTriggered = false)
+          }
         }
       }
     }

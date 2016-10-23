@@ -10,4 +10,6 @@ trait EventHandlers {
   def preFormSubmit(form: JQuery): Boolean
 
   def postFormSubmit(form: JQuery): Unit
+
+  def applyDiff(element: JQuery): Boolean
 }

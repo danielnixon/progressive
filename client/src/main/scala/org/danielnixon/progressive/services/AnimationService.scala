@@ -19,7 +19,7 @@ class AnimationService {
         m
       }
 
-      val newMinHeight = if (preserveHeight) htmlElement.clientHeight.toString + "px" else minHeight
+      val newMinHeight = if (preserveHeight) htmlElement.getBoundingClientRect.height + "px" else minHeight
       val duration = durationOpt.getOrElse(400)
 
       htmlElement.style.minHeight = newMinHeight

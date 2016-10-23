@@ -1,6 +1,6 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.progressive.shared.api.{ FormSettings, LinkSettings, SubmitButtonSettings }
+import org.danielnixon.progressive.shared.api.{ FormSettings, LinkSettings, RefreshSettings, SubmitButtonSettings }
 
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
@@ -27,6 +27,12 @@ package object views {
     a(
       href := linkHref,
       data.progressive := LinkSettings.asJson(settings)
+    )
+  }
+
+  def refresh(settings: RefreshSettings): TypedTag[String] = {
+    div(
+      data.refresh := RefreshSettings.asJson(settings)
     )
   }
 }
