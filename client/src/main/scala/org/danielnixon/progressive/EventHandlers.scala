@@ -1,6 +1,7 @@
 package org.danielnixon.progressive
 
 import org.querki.jquery.JQuery
+import org.scalajs.dom.html.Input
 
 trait EventHandlers {
   def additionalSetupInitial(body: JQuery): Unit
@@ -12,4 +13,6 @@ trait EventHandlers {
   def postFormSubmit(form: JQuery): Unit
 
   def applyDiff(element: JQuery): Boolean
+
+  def includeInQueryString(input: Input): Boolean
 }

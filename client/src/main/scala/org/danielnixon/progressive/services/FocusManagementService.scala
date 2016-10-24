@@ -1,9 +1,13 @@
 package org.danielnixon.progressive.services
 
+import org.danielnixon.progressive.extensions.dom.NodeListSeq
+import org.danielnixon.progressive.shared.Wart
 import org.querki.jquery._
 import org.scalajs.dom.Window
+import org.scalajs.dom.html._
+import org.scalajs.dom.raw.HTMLFormElement
 
-class FocusManagementService(window: Window, mainElement: JQuery) {
+class FocusManagementService(window: Window, mainElement: JQuery, userAgentService: UserAgentService) {
 
   def setFocus(element: JQuery): JQuery = {
     if (element.length > 0) {
@@ -28,4 +32,13 @@ class FocusManagementService(window: Window, mainElement: JQuery) {
   }
 
   def anythingHasFocus = Option(window.document.querySelector(":focus")).isDefined
+
+  // Dismiss keyboard on iOS.
+  @SuppressWarnings(Array(Wart.AsInstanceOf))
+  def dismissKeyboard(formElement: HTMLFormElement): Unit = {
+    if (userAgentService.isTouchDevice) {
+      val inputs = "textarea, input[type=text], input[type=password], input[type=datetime], input[type=datetime-local], input[type=date], input[type=month], input[type=time], input[type=week], input[type=number], input[type=email], input[type=url], input[type=search], input[type=tel], input[type=color]"
+      formElement.querySelectorAll(inputs).foreach(_.asInstanceOf[Element].blur())
+    }
+  }
 }

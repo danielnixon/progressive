@@ -5,12 +5,13 @@ import org.scalajs.dom.Element
 import org.scalajs.dom.html.{ DataList, Input, Option => OptionElement }
 import org.danielnixon.progressive.shared.Wart
 
+import scala.collection.immutable.Seq
 import scala.scalajs.js.URIUtils
 import scalaz.Scalaz._
 
 final case class QueryStringParam(name: String, value: Option[String])
 
-class QueryStringService {
+class QueryStringService(includeInQueryString: Input => Boolean) {
   def appendQueryString(path: String, search: String): String = {
     if (search.nonEmpty) path + '?' + search else path
   }
@@ -18,7 +19,7 @@ class QueryStringService {
   def extractQueryStringParams(uri: String): Seq[QueryStringParam] = {
     val queryIndex = uri.indexOf("?")
     val queryString = if (queryIndex =/= -1) uri.substring(queryIndex + 1) else ""
-    queryString.split("&").filter(_.nonEmpty).map { elem =>
+    queryString.split("&").to[Seq].filter(_.nonEmpty).map { elem =>
       val pair = elem.split("=")
       QueryStringParam(pair(0), Option(pair(1)))
     }
@@ -53,16 +54,14 @@ class QueryStringService {
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def paramsForQueryString(form: Element): Seq[QueryStringParam] = {
 
-    form.querySelectorAll("input[name], select[name]").flatMap { e =>
+    form.querySelectorAll("textarea[name], input[name], select[name]").to[Seq].flatMap { e =>
       val input = e.asInstanceOf[Input]
 
       val shouldInclude = {
-        val isHiddenInputType = input.getAttribute("type") === "hidden"
+        val isHiddenInputType = input.`type` === "hidden"
         val isVisible = (input.offsetWidth gt 0D) || (input.offsetHeight gt 0D)
         isHiddenInputType || isVisible
       }
-
-      val name = input.getAttribute("name")
 
       val values = if (shouldInclude) {
         if (input.multiple) {
@@ -71,7 +70,7 @@ class QueryStringService {
             filter(_.selected).
             map(optionElem => Some(optionElem.value))
         } else {
-          if (input.hasAttribute("data-page") && input.value === "1") {
+          if (!includeInQueryString(input)) {
             Seq(None)
           } else {
             Seq(Some(input.value))
@@ -82,7 +81,7 @@ class QueryStringService {
       }
 
       values.map { value =>
-        QueryStringParam(name, value.map(URIUtils.encodeURIComponent))
+        QueryStringParam(input.name, value.map(URIUtils.encodeURIComponent))
       }
     }
   }

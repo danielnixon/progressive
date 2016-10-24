@@ -2,15 +2,14 @@ package org.danielnixon.progressive.services
 
 import org.querki.jquery._
 import org.scalajs.dom._
-import org.scalajs.dom.ext.Ajax
-import org.scalajs.dom.raw.HTMLFormElement
+import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.extensions.dom.ElementWrapper
 import org.danielnixon.progressive.extensions.jquery.JQuerySeq
-import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api._
-import org.scalajs.dom.html.{ Anchor, Button }
+import org.scalajs.dom.html.{ Anchor, Button, Form }
 
+import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scalaz.Scalaz._
@@ -44,11 +43,9 @@ class HijaxService(
     }
   }
 
-  private def focusTargetIfRequired(formSettings: FormSettings, target: JQuery): Unit = {
-    if (!focusManagementService.anythingHasFocus) {
-      if (formSettings.focusTarget) {
-        focusManagementService.setFocus(target)
-      }
+  private def focusTargetIfRequired(settings: FormSettings, target: JQuery): Unit = {
+    if (!focusManagementService.anythingHasFocus && settings.focusTarget) {
+      focusManagementService.setFocus(target)
     }
   }
 
@@ -88,21 +85,12 @@ class HijaxService(
     button.attr("data-clicked", "true")
   }
 
-  // scalastyle:off method.length
-  // scalastyle:off cyclomatic.complexity
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxFormSubmit(form: JQuery): Boolean = {
-    val formElement = form(0).asInstanceOf[HTMLFormElement]
-
-    formElement.getAttributeOpt("data-progressive").flatMap(FormSettings.fromJson) match {
+    form.attr("data-progressive").toOption.flatMap(FormSettings.fromJson) match {
       case None => false
       case Some(formSettings) =>
         val clickedSubmitButton = form.find("button[type=submit][data-clicked]")
-        val clickedSubmitButtonElem = clickedSubmitButton.headOption.map(_.asInstanceOf[Button])
-        val clickedSubmitButtonSettings = clickedSubmitButtonElem.flatMap { e =>
-          e.getAttributeOpt("data-progressive").flatMap(SubmitButtonSettings.fromJson)
-        }
-
         if (enableDisableService.isDisabled(form) || enableDisableService.isDisabled(clickedSubmitButton)) {
           false
         } else {
@@ -111,68 +99,13 @@ class HijaxService(
           if (!confirmed) {
             false
           } else {
-            formSettings.confirmedAction.foreach(action => formElement.action = action)
+            formSettings.confirmedAction.foreach(action => form.attr("action", action))
 
             if (!formSettings.ajax) {
               true
             } else {
               if (preFormSubmit(form)) {
-                val action = formElement.action
-                val clickedSubmitButtonFormMethod = clickedSubmitButtonElem.flatMap(_.formMethod.toOption)
-                val method = clickedSubmitButtonFormMethod.getOrElse(formElement.method)
-                val isGet = method.toLowerCase === "get"
-                val serializedForm = form.serialize()
-
-                val targetAction = {
-                  val a = clickedSubmitButtonElem.
-                    flatMap(_.formAction.toOption).
-                    orElse(formSettings.ajaxAction).
-                    getOrElse(action)
-                  if (isGet) queryStringService.appendQueryString(a, serializedForm) else a
-                }
-
-                val targetOpt = clickedSubmitButtonSettings.flatMap(_.target) match {
-                  case Some(t) => getTarget(clickedSubmitButton, Some(t))
-                  case None => getTarget(form, formSettings.target)
-                }
-
-                val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
-
-                if (isGet && !isSecondarySubmitButton) {
-                  val paramsForQueryString = queryStringService.paramsForQueryString(formElement)
-                  val queryString = queryStringService.toQueryString(paramsForQueryString)
-                  val changingPath = action =/= window.location.pathname
-                  val newUri = if (changingPath) queryStringService.appendQueryString(action, queryString) else updateQueryString(paramsForQueryString)
-                  historyService.pushState(newUri)
-
-                  // Dismiss keyboard on iOS.
-                  if (userAgentService.isTouchDevice) {
-                    val inputs = "textarea, input[type=text], input[type=password], input[type=datetime], input[type=datetime-local], input[type=date], input[type=month], input[type=time], input[type=week], input[type=number], input[type=email], input[type=url], input[type=search], input[type=tel], input[type=color]"
-                    form.find(inputs).blur()
-                  }
-
-                  targetOpt.foreach(target => refreshService.updateAutoRefresh(target, targetAction))
-                }
-
-                val isFileUpload = formElement.enctype === "multipart/form-data"
-                val data: Ajax.InputData = if (isFileUpload) new FormData(formElement) else serializedForm
-                val headers = if (isFileUpload) Map.empty[String, String] else Map("Content-Type" -> "application/x-www-form-urlencoded")
-                val request = ajaxService.ajax(method, targetAction, Some(data), headers)
-
-                val busyMessage = clickedSubmitButtonSettings.flatMap(_.busyMessage).orElse(formSettings.busyMessage)
-                val elemToRemove = if (formSettings.remove) Some(form.closest(".item")) else None
-
-                val trigger = if (clickedSubmitButton.nonEmpty) clickedSubmitButton else form
-                val fut = fadeOutFadeIn(request.future, trigger, targetOpt, formSettings.reloadPage, elemToRemove, busyMessage)
-
-                fut map { _ =>
-                  targetOpt.foreach(target => focusTargetIfRequired(formSettings, target))
-                  triggerRefreshIfRequired(formSettings, form.closest("[data-refresh]"))
-                  if (isFileUpload) {
-                    formElement.reset()
-                  }
-                }
-
+                val fut = submitAjaxForm(form, formSettings, clickedSubmitButton)
                 fut.onComplete(_ => postFormSubmit(form))
               }
               false
@@ -181,8 +114,81 @@ class HijaxService(
         }
     }
   }
-  // scalastyle:on method.length
-  // scalastyle:on cyclomatic.complexity
+
+  @SuppressWarnings(Array(Wart.AsInstanceOf))
+  private def submitAjaxForm(form: JQuery, formSettings: FormSettings, clickedSubmitButton: JQuery): Future[Unit] = {
+    val formElement = form(0).asInstanceOf[Form]
+    val clickedSubmitButtonElem = clickedSubmitButton.headOption.map(_.asInstanceOf[Button])
+    val clickedSubmitButtonSettings = clickedSubmitButtonElem.flatMap { e =>
+      e.getAttributeOpt("data-progressive").flatMap(SubmitButtonSettings.fromJson)
+    }
+
+    val action = formElement.getAttribute("action")
+    val clickedSubmitButtonFormMethod = clickedSubmitButtonElem.flatMap(_.formMethod.toOption)
+    val method = clickedSubmitButtonFormMethod.getOrElse(formElement.method)
+    val isGet = method.toLowerCase === "get"
+    val serializedForm = form.serialize()
+
+    val targetAction = {
+      val a = clickedSubmitButtonElem.flatMap(_.formAction.toOption).orElse(formSettings.ajaxAction).getOrElse(action)
+      if (isGet) queryStringService.appendQueryString(a, serializedForm) else a
+    }
+
+    val targetOpt = clickedSubmitButtonSettings.flatMap(_.target) match {
+      case Some(t) => getTarget(clickedSubmitButton, Some(t))
+      case None => getTarget(form, formSettings.target)
+    }
+
+    val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
+
+    if (isGet && !isSecondarySubmitButton) {
+      handleGetFormSubmit(formElement, action, targetAction, targetOpt)
+    }
+
+    val isFileUpload = formElement.enctype === "multipart/form-data"
+
+    val fut = {
+      val request: AjaxRequest = {
+        val headers = if (isFileUpload) Map.empty[String, String] else Map("Content-Type" -> "application/x-www-form-urlencoded")
+        ajaxService.ajax(method, targetAction, Some(new FormData(formElement)), headers)
+      }
+
+      val busyMessage = clickedSubmitButtonSettings.flatMap(_.busyMessage).orElse(formSettings.busyMessage)
+      val elemToRemove = if (formSettings.remove) Some(form.closest(".item")) else None
+      val trigger = if (clickedSubmitButton.nonEmpty) clickedSubmitButton else form
+      fadeOutFadeIn(request.future, trigger, targetOpt, formSettings.reloadPage, elemToRemove, busyMessage)
+    }
+
+    fut map { _ =>
+      targetOpt.foreach(target => focusTargetIfRequired(formSettings, target))
+      triggerRefreshIfRequired(formSettings, form.closest("[data-refresh]"))
+      if (isFileUpload) {
+        formElement.reset()
+      }
+    }
+  }
+
+  private def handleGetFormSubmit(formElement: Form, action: String, targetAction: String, targetOpt: Option[JQuery]): Unit = {
+    updateUri(formElement, action)
+    focusManagementService.dismissKeyboard(formElement)
+    updateAutoRefresh(targetAction, targetOpt)
+  }
+
+  private def updateAutoRefresh(targetAction: String, targetOpt: Option[JQuery]): Unit = {
+    targetOpt.foreach(target => refreshService.updateAutoRefresh(target, targetAction))
+  }
+
+  private def updateUri(formElement: Form, action: String): Unit = {
+    val paramsForQueryString = queryStringService.paramsForQueryString(formElement)
+    val queryString = queryStringService.toQueryString(paramsForQueryString)
+    val changingPath = action =/= window.location.pathname
+    val newUri = if (changingPath) {
+      queryStringService.appendQueryString(action, queryString)
+    } else {
+      updateQueryString(paramsForQueryString)
+    }
+    historyService.pushState(newUri)
+  }
 
   private def fadeOutFadeIn(
     request: Future[AjaxResponse],
