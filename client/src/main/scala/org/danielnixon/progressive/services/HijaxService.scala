@@ -25,8 +25,8 @@ class HijaxService(
     enableDisableService: EnableDisableService,
     ajaxService: AjaxService,
     eventHandlerSetupService: EventHandlerSetupService,
-    preFormSubmit: JQuery => Boolean,
-    postFormSubmit: JQuery => Unit
+    preFormSubmit: Element => Boolean,
+    postFormSubmit: Element => Unit
 ) {
 
   private def updateQueryString(params: Seq[QueryStringParam]): String = {
@@ -51,7 +51,7 @@ class HijaxService(
 
   private def triggerRefreshIfRequired(settings: FormSettings, refreshTarget: JQuery): Unit = {
     if (settings.triggerRefresh) {
-      refreshService.refresh(refreshTarget, userTriggered = true)
+      refreshService.refresh(refreshTarget(0), userTriggered = true)
     }
   }
 
@@ -104,9 +104,9 @@ class HijaxService(
             if (!formSettings.ajax) {
               true
             } else {
-              if (preFormSubmit(form)) {
+              if (preFormSubmit(form(0))) {
                 val fut = submitAjaxForm(form, formSettings, clickedSubmitButton)
-                fut.onComplete(_ => postFormSubmit(form))
+                fut.onComplete(_ => postFormSubmit(form(0)))
               }
               false
             }
@@ -118,25 +118,30 @@ class HijaxService(
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   private def submitAjaxForm(form: JQuery, formSettings: FormSettings, clickedSubmitButton: JQuery): Future[Unit] = {
     val formElement = form(0).asInstanceOf[Form]
-    val clickedSubmitButtonElem = clickedSubmitButton.headOption.map(_.asInstanceOf[Button])
-    val clickedSubmitButtonSettings = clickedSubmitButtonElem.flatMap { e =>
+    val submitButton = clickedSubmitButton.headOption.map(_.asInstanceOf[Button])
+    val submitButtonSettings = submitButton.flatMap { e =>
       e.getAttributeOpt("data-progressive").flatMap(SubmitButtonSettings.fromJson)
     }
 
+    val settings = formSettings.copy(
+      ajaxAction = submitButton.flatMap(_.getAttributeOpt("formaction")).orElse(formSettings.ajaxAction),
+      busyMessage = submitButtonSettings.flatMap(_.busyMessage).orElse(formSettings.busyMessage)
+    )
+
     val action = formElement.getAttribute("action")
-    val clickedSubmitButtonFormMethod = clickedSubmitButtonElem.flatMap(_.formMethod.toOption)
+    val clickedSubmitButtonFormMethod = submitButton.flatMap(_.formMethod.toOption)
     val method = clickedSubmitButtonFormMethod.getOrElse(formElement.method)
     val isGet = method.toLowerCase === "get"
     val serializedForm = form.serialize()
 
     val targetAction = {
-      val a = clickedSubmitButtonElem.flatMap(_.formAction.toOption).orElse(formSettings.ajaxAction).getOrElse(action)
+      val a = settings.ajaxAction.getOrElse(action)
       if (isGet) queryStringService.appendQueryString(a, serializedForm) else a
     }
 
-    val targetOpt = clickedSubmitButtonSettings.flatMap(_.target) match {
+    val targetOpt = submitButtonSettings.flatMap(_.target) match {
       case Some(t) => getTarget(clickedSubmitButton, Some(t))
-      case None => getTarget(form, formSettings.target)
+      case None => getTarget(form, settings.target)
     }
 
     val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
@@ -146,26 +151,24 @@ class HijaxService(
     }
 
     val isFileUpload = formElement.enctype === "multipart/form-data"
+    val request = makeRequest(formElement, method, serializedForm, targetAction, isFileUpload).future
 
-    val fut = {
-      val request: AjaxRequest = {
-        val headers = if (isFileUpload) Map.empty[String, String] else Map("Content-Type" -> "application/x-www-form-urlencoded")
-        ajaxService.ajax(method, targetAction, Some(new FormData(formElement)), headers)
-      }
-
-      val busyMessage = clickedSubmitButtonSettings.flatMap(_.busyMessage).orElse(formSettings.busyMessage)
-      val elemToRemove = if (formSettings.remove) Some(form.closest(".item")) else None
-      val trigger = if (clickedSubmitButton.nonEmpty) clickedSubmitButton else form
-      fadeOutFadeIn(request.future, trigger, targetOpt, formSettings.reloadPage, elemToRemove, busyMessage)
-    }
+    val trigger = if (clickedSubmitButton.nonEmpty) clickedSubmitButton else form
+    val elemToRemove = if (formSettings.remove) Some(trigger.closest(".item")) else None
+    val fut = fadeOutFadeIn(request, trigger, targetOpt, formSettings.reloadPage, elemToRemove, formSettings.busyMessage)
 
     fut map { _ =>
-      targetOpt.foreach(target => focusTargetIfRequired(formSettings, target))
-      triggerRefreshIfRequired(formSettings, form.closest("[data-refresh]"))
+      targetOpt.foreach(target => focusTargetIfRequired(settings, target))
+      triggerRefreshIfRequired(settings, form.closest("[data-refresh]"))
       if (isFileUpload) {
         formElement.reset()
       }
     }
+  }
+
+  private def makeRequest(formElement: Form, method: String, serializedForm: String, targetAction: String, isFileUpload: Boolean): AjaxRequest = {
+    val headers = if (isFileUpload) Map.empty[String, String] else Map("Content-Type" -> "application/x-www-form-urlencoded")
+    ajaxService.ajax(method, targetAction, Some(if (isFileUpload) new FormData(formElement) else serializedForm), headers)
   }
 
   private def handleGetFormSubmit(formElement: Form, action: String, targetAction: String, targetOpt: Option[JQuery]): Unit = {
@@ -175,7 +178,7 @@ class HijaxService(
   }
 
   private def updateAutoRefresh(targetAction: String, targetOpt: Option[JQuery]): Unit = {
-    targetOpt.foreach(target => refreshService.updateAutoRefresh(target, targetAction))
+    targetOpt.foreach(target => refreshService.updateRefresh(target(0), targetAction))
   }
 
   private def updateUri(formElement: Form, action: String): Unit = {
@@ -198,16 +201,16 @@ class HijaxService(
     elemToRemove: Option[JQuery],
     busyMessage: Option[String]
   ): Future[Unit] = {
-    val preRender = (target: JQuery) => eventHandlerSetupService.setup(target, refreshService)
+    val preRender = (target: JQuery) => eventHandlerSetupService.setup(target(0), refreshService)
 
     enableDisableService.disable(trigger)
-    targetOpt.foreach(target => refreshService.pauseAutoRefresh(target))
+    targetOpt.foreach(target => refreshService.pauseAutoRefresh(target(0)))
 
     val fut = transitionsService.fadeOutFadeIn(request, targetOpt, busyMessage, reloadPage, elemToRemove, preRender)
 
     fut.onComplete { _ =>
       enableDisableService.enable(trigger)
-      targetOpt.foreach(target => refreshService.resumeAutoRefresh(target))
+      targetOpt.foreach(target => refreshService.resumeAutoRefresh(target(0)))
     }
 
     fut

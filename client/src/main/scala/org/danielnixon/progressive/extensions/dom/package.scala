@@ -22,4 +22,8 @@ package object dom {
     def getAttributeOpt(name: String): Option[String] = element.getAttribute(name).toOption
   }
 
+  implicit class NodeSelectorWrapper(val element: NodeSelector) extends AnyVal {
+    def querySelectorOpt(selectors: String): Option[Element] = Option(element.querySelector(selectors))
+  }
+
 }

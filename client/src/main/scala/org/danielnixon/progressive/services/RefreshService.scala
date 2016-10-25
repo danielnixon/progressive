@@ -1,11 +1,12 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.progressive.extensions.dom.ElementWrapper
-import org.danielnixon.progressive.extensions.jquery.{ JQuerySeq, JQueryWrapper }
+import org.danielnixon.progressive.extensions.dom.{ ElementWrapper, NodeSelectorWrapper }
 import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
+import org.danielnixon.progressive.facades.es6.WeakMap
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
+import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.RefreshSettings
-import org.querki.jquery._
+import org.scalajs.dom.Element
 import org.scalajs.dom.raw.HTMLElement
 
 import scala.concurrent.Future
@@ -17,36 +18,45 @@ class RefreshService(
     vdomParser: VDomParser,
     eventHandlerSetupService: EventHandlerSetupService,
     ajaxService: AjaxService,
-    applyDiff: JQuery => Boolean
+    applyDiff: Element => Boolean
 ) {
 
-  private def vDomTarget(element: JQuery): HTMLElement = {
-    val refreshContent = element.find(".refresh-content")
-    refreshContent.headOption.getOrElse(element.head)
+  private object Data {
+    val paused = "data-paused"
+    val refresh = "data-refresh"
   }
 
-  private def createVdom(element: JQuery): VTree = {
+  private val refreshRequestMap = new WeakMap[Element, AjaxRequest]
+  private val vdomMap = new WeakMap[Element, VTree]
+
+  private def vDomTarget(element: Element): Element = {
+    element.querySelectorOpt(".refresh-content").getOrElse(element)
+  }
+
+  @SuppressWarnings(Array(Wart.AsInstanceOf))
+  private def createVdom(element: Element): VTree = {
     val target = vDomTarget(element)
-    vdomParser(target)
+    vdomParser(target.asInstanceOf[HTMLElement])
   }
 
-  def refresh(element: JQuery, userTriggered: Boolean): Future[Unit] = {
-    val alreadyRefreshing = element.data("refresh-request").isDefined
+  def refresh(element: Element, userTriggered: Boolean): Future[Unit] = {
 
-    element.dataT[String]("refresh") match {
+    val alreadyRefreshing = refreshRequestMap.has(element)
+
+    element.getAttributeOpt(Data.refresh) match {
       case Some(url) if !alreadyRefreshing =>
         val request = ajaxService.get(url)
-        element.data("refresh-request", request)
+        refreshRequestMap.set(element, request)
         val fut = request.future.map { ajaxResponse =>
           val shouldApplyDiff = userTriggered || applyDiff(element)
 
           if (shouldApplyDiff) {
             // Get existing virtual DOM.
-            val targetVdom = element.dataT[VTree]("vdom").getOrElse(createVdom(element))
+            val targetVdom = vdomMap.get(element).toOption.getOrElse(createVdom(element))
 
             // Create new virtual DOM.
             val newVdom = vdomParser(ajaxResponse.html)
-            element.data("vdom", newVdom)
+            vdomMap.set(element, newVdom)
 
             // Calculate patch.
             val patchObject = virtualDom.diff(targetVdom, newVdom)
@@ -62,7 +72,7 @@ class RefreshService(
           }
         }
 
-        fut.onComplete { _ => element.removeData("refresh-request") }
+        fut.onComplete { _ => refreshRequestMap.delete(element) }
 
         fut
 
@@ -70,17 +80,16 @@ class RefreshService(
     }
   }
 
-  def setupRefresh(element: JQuery): Unit = {
-    val div = element(0)
+  def setupRefresh(element: Element): Unit = {
+    element.getAttributeOpt(Data.refresh).flatMap(RefreshSettings.fromJson) foreach { settings =>
 
-    div.getAttributeOpt("data-refresh").flatMap(RefreshSettings.fromJson) foreach { settings =>
+      vdomMap.set(element, createVdom(element))
 
-      element.data("vdom", createVdom(element))
-      element.data("refresh", settings.url)
+      element.setAttribute(Data.refresh, settings.url)
 
       settings.interval map { interval =>
         setInterval(interval.toDouble) {
-          val paused = element.dataT[Boolean]("paused").getOrElse(false)
+          val paused = element.hasAttribute(Data.paused)
           if (!paused) {
             refresh(element, userTriggered = false)
           }
@@ -89,23 +98,23 @@ class RefreshService(
     }
   }
 
-  def updateAutoRefresh(element: JQuery, url: String): Unit = {
-    if (element.is("[data-refresh]")) {
-      element.data("refresh", url)
-      element.removeData("vdom")
+  def updateRefresh(element: Element, url: String): Unit = {
+    if (element.hasAttribute(Data.refresh)) {
+      element.setAttribute(Data.refresh, url)
+      vdomMap.delete(element)
     }
   }
 
-  def pauseAutoRefresh(element: JQuery): Unit = {
+  def pauseAutoRefresh(element: Element): Unit = {
     // Cancel existing request.
-    val request = element.dataT[AjaxRequest]("refresh-request")
-    element.removeData("refresh-request")
+    val request = refreshRequestMap.get(element)
+    refreshRequestMap.delete(element)
     request.foreach(_.abort())
 
-    element.data("paused", true)
+    element.setAttribute(Data.paused, "true")
   }
 
-  def resumeAutoRefresh(element: JQuery): Unit = {
-    element.data("paused", false)
+  def resumeAutoRefresh(element: Element): Unit = {
+    element.removeAttribute(Data.paused)
   }
 }

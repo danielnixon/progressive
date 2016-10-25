@@ -35,6 +35,6 @@ class Progressive {
     historyService.initializeHistory()
     dom.window.onpopstate = historyService.onPopState _
 
-    eventHandlerSetupService.setupInitial($("body"), refreshService, hijaxService)
+    eventHandlerSetupService.setupInitial(elements.body, refreshService, hijaxService)
   }
 }

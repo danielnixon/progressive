@@ -1,18 +1,18 @@
 package org.danielnixon.progressive
 
-import org.querki.jquery.JQuery
+import org.scalajs.dom.Element
 import org.scalajs.dom.html.Input
 
 trait EventHandlers {
-  def additionalSetupInitial(body: JQuery): Unit
+  def additionalSetupInitial(body: Element): Unit
 
-  def additionalSetup(element: JQuery): Unit
+  def additionalSetup(element: Element): Unit
 
-  def preFormSubmit(form: JQuery): Boolean
+  def preFormSubmit(form: Element): Boolean
 
-  def postFormSubmit(form: JQuery): Unit
+  def postFormSubmit(form: Element): Unit
 
-  def applyDiff(element: JQuery): Boolean
+  def applyDiff(element: Element): Boolean
 
   def includeInQueryString(input: Input): Boolean
 }
