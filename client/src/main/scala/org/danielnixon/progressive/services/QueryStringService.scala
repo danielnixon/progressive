@@ -1,19 +1,17 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.scalajs.dom.Element
-import org.scalajs.dom.html.{ DataList, Input, Option => OptionElement }
+import org.scalajs.dom.html.{ Form, Input }
 import org.danielnixon.progressive.shared.Wart
+import org.scalajs.dom.{ Element, html }
 
 import scala.collection.immutable.Seq
-import scala.scalajs.js.URIUtils
 import scalaz.Scalaz._
 
 final case class QueryStringParam(name: String, value: Option[String])
 
-class QueryStringService(includeInQueryString: Input => Boolean) {
+class QueryStringService(formSerializer: FormSerializer, includeInQueryString: Element => Boolean) {
   def appendQueryString(path: String, search: String): String = {
-    if (search.nonEmpty) path + '?' + search else path
+    if (search.nonEmpty) path + "?" + search else path
   }
 
   def extractQueryStringParams(uri: String): Seq[QueryStringParam] = {
@@ -34,7 +32,7 @@ class QueryStringService(includeInQueryString: Input => Boolean) {
 
     (for {
       (name, value) <- params.flatMap(hasValue)
-    } yield name + '=' + value).mkString("&")
+    } yield name + "=" + value).mkString("&")
   }
 
   def updateQueryStringArray(existingParams: Seq[QueryStringParam], newParams: Seq[QueryStringParam]): String = {
@@ -52,37 +50,24 @@ class QueryStringService(includeInQueryString: Input => Boolean) {
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def paramsForQueryString(form: Element): Seq[QueryStringParam] = {
+  def paramsForQueryString(form: Form): Seq[QueryStringParam] = {
 
-    form.querySelectorAll("textarea[name], input[name], select[name]").to[Seq].flatMap { e =>
-      val input = e.asInstanceOf[Input]
-
-      val shouldInclude = {
-        val isHiddenInputType = input.`type` === "hidden"
-        val isVisible = (input.offsetWidth gt 0D) || (input.offsetHeight gt 0D)
-        isHiddenInputType || isVisible
+    def shouldInclude(element: html.Element) = {
+      val isHiddenInputType = element match {
+        case input: Input => input.`type` === "hidden"
+        case _ => false
       }
+      val isVisible = (element.offsetWidth gt 0D) || (element.offsetHeight gt 0D)
+      isHiddenInputType || isVisible
+    }
 
-      val values = if (shouldInclude) {
-        if (input.multiple) {
-          input.asInstanceOf[DataList].options.
-            map(_.asInstanceOf[OptionElement]).
-            filter(_.selected).
-            map(optionElem => Some(optionElem.value))
+    formSerializer.serializeSeq(form) map {
+      case (element, name, value) =>
+        if (shouldInclude(element) && includeInQueryString(element)) {
+          QueryStringParam(name, Some(value))
         } else {
-          if (!includeInQueryString(input)) {
-            Seq(None)
-          } else {
-            Seq(Some(input.value))
-          }
+          QueryStringParam(name, None)
         }
-      } else {
-        Seq(None)
-      }
-
-      values.map { value =>
-        QueryStringParam(input.name, value.map(URIUtils.encodeURIComponent))
-      }
     }
   }
 }

@@ -2,7 +2,6 @@ package org.danielnixon.progressive
 
 import org.danielnixon.progressive.services._
 import org.scalajs.dom
-import org.querki.jquery._
 
 class Progressive {
   def initialize(
@@ -13,13 +12,14 @@ class Progressive {
 
     val historyService = new HistoryService(dom.window)
     val ajaxService = new AjaxService
-    val eventHandlerSetupService = new EventHandlerSetupService($, eventHandlers.additionalSetupInitial, eventHandlers.additionalSetup)
+    val eventHandlerSetupService = new EventHandlerSetupService(eventHandlers.additionalSetupInitial, eventHandlers.additionalSetup)
     val refreshService = new RefreshService(Global.virtualDom, Global.vdomParser, eventHandlerSetupService, ajaxService, eventHandlers.applyDiff)
     val userAgentService = new UserAgentService(dom.window)
+    val formSerializer = new FormSerializer
 
     val hijaxService = new HijaxService(
       dom.window,
-      new QueryStringService(eventHandlers.includeInQueryString),
+      new QueryStringService(formSerializer, eventHandlers.includeInQueryString),
       historyService,
       userAgentService,
       new TransitionsService(dom.window, elements.announcementsElement, elements.errorElement, new AnimationService, views),
@@ -28,6 +28,7 @@ class Progressive {
       new EnableDisableService,
       ajaxService,
       eventHandlerSetupService,
+      formSerializer,
       eventHandlers.preFormSubmit,
       eventHandlers.postFormSubmit
     )

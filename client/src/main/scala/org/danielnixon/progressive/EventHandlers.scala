@@ -1,7 +1,6 @@
 package org.danielnixon.progressive
 
 import org.scalajs.dom.Element
-import org.scalajs.dom.html.Input
 
 trait EventHandlers {
   def additionalSetupInitial(body: Element): Unit
@@ -14,5 +13,5 @@ trait EventHandlers {
 
   def applyDiff(element: Element): Boolean
 
-  def includeInQueryString(input: Input): Boolean
+  def includeInQueryString(element: Element): Boolean
 }

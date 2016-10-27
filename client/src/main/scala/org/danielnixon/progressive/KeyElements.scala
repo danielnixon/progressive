@@ -1,11 +1,10 @@
 package org.danielnixon.progressive
 
-import org.querki.jquery.JQuery
-import org.scalajs.dom.Element
+import org.scalajs.dom.html.Element
 
 final case class KeyElements(
   body: Element,
-  mainElement: JQuery,
-  announcementsElement: JQuery,
-  errorElement: JQuery
+  mainElement: Element,
+  announcementsElement: Element,
+  errorElement: Element
 )

@@ -107,12 +107,10 @@ lazy val client = (project in file("client")).
     persistLauncher in Test := false,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "org.querki" %%% "jquery-facade" % "1.0-RC6",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
       "org.scalatest" %%% "scalatest" % "3.0.0" % Test
     ),
     jsDependencies ++= Seq(
-      "org.webjars.bower" % "jquery" % "3.1.1" / "3.1.1/dist/jquery.js",
       "org.webjars.npm" % "virtual-dom" % "2.1.1" / "virtual-dom.js",
       "org.webjars.npm" % "vdom-parser" % "1.3.4" / "dist.js",
       RuntimeDOM % Test

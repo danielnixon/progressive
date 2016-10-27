@@ -1,9 +1,7 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.Views
-import org.danielnixon.progressive.extensions.jquery.JQuerySeq
-import org.querki.jquery._
-import org.scalajs.dom.Window
+import org.scalajs.dom.{ Element, Window, html }
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
 
@@ -12,41 +10,41 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
 class TransitionsService(
     window: Window,
-    announcementsElement: JQuery,
-    errorElement: JQuery,
+    announcementsElement: Element,
+    errorElement: html.Element,
     animationService: AnimationService,
     views: Views
 ) {
 
   private def announce(message: String): Unit = {
-    announcementsElement.text(message)
+    announcementsElement.textContent = message
   }
 
-  private def fadeOutAnimation(target: JQuery, busyMessage: Option[String]): Future[Unit] = {
-    val skipFadeOut = target.text.trim.isEmpty
-    val promise = animationService.transitionOut(target.headOption, if (skipFadeOut) Some(0) else None)
+  private def fadeOutAnimation(target: html.Element, busyMessage: Option[String]): Future[Unit] = {
+    val skipFadeOut = target.textContent.trim.isEmpty
+    val promise = animationService.transitionOut(Some(target), if (skipFadeOut) Some(0) else None)
 
     busyMessage.foreach(announce)
 
     promise.flatMap { _ =>
       busyMessage map { m =>
-        target.html(views.loading(m).render)
-        animationService.transitionIn(target.headOption, preserveHeight = true)
+        target.innerHTML = views.loading(m).render
+        animationService.transitionIn(Some(target), preserveHeight = true)
       } getOrElse {
         Future.successful(())
       }
     }
   }
 
-  private def fadeIn(target: JQuery, result: String, preRender: JQuery => Unit): Future[Unit] = {
-    animationService.transitionOut(target.headOption, None).flatMap { _ =>
-      target.html(result)
+  private def fadeIn(target: html.Element, newHtml: String, preRender: Element => Unit): Future[Unit] = {
+    animationService.transitionOut(Some(target), None).flatMap { _ =>
+      target.innerHTML = newHtml
       preRender(target)
-      animationService.transitionIn(target.headOption)
+      animationService.transitionIn(Some(target))
     }
   }
 
-  private def displayError(targetOpt: Option[JQuery], e: AjaxRequestException, preRender: JQuery => Unit) = {
+  private def displayError(targetOpt: Option[html.Element], e: AjaxRequestException, preRender: Element => Unit) = {
     announce(e.message)
 
     targetOpt map { target =>
@@ -58,10 +56,10 @@ class TransitionsService(
 
   private def handleResponse(
     response: AjaxResponse,
-    targetOpt: Option[JQuery],
+    targetOpt: Option[html.Element],
     reloadPage: Boolean,
-    elemToRemove: Option[JQuery],
-    preRender: JQuery => Unit
+    elemToRemove: Option[html.Element],
+    preRender: Element => Unit
   ): Future[Unit] = {
     if (reloadPage) {
       window.location.reload(true)
@@ -71,8 +69,8 @@ class TransitionsService(
 
       elemToRemove match {
         case Some(elem) =>
-          val fut = animationService.transitionOut(elem.headOption, None)
-          fut.onComplete(_ => elem.remove())
+          val fut = animationService.transitionOut(Some(elem), None)
+          fut.onComplete(_ => elem.parentNode.removeChild(elem))
           fut
         case None =>
           targetOpt map { target =>
@@ -87,11 +85,11 @@ class TransitionsService(
   @SuppressWarnings(Array(Wart.Any))
   def fadeOutFadeIn(
     request: Future[AjaxResponse],
-    targetOpt: Option[JQuery],
+    targetOpt: Option[html.Element],
     busyMessage: Option[String],
     reloadPage: Boolean,
-    elemToRemove: Option[JQuery],
-    preRender: JQuery => Unit
+    elemToRemove: Option[html.Element],
+    preRender: Element => Unit
   ): Future[Unit] = {
 
     val animation = targetOpt.map { target =>

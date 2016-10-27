@@ -1,37 +1,48 @@
 package org.danielnixon.progressive.services
 
-import org.querki.jquery._
-import org.scalajs.dom.Element
+import org.danielnixon.progressive.extensions.dom.NodeListSeq
+import org.danielnixon.progressive.facades.dom.ElementMatches.element2ElementMatches
+import org.danielnixon.progressive.shared.Wart
+import org.scalajs.dom.{ Element, Event, html }
 
-import scala.scalajs.js
-
+@SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(
-    jQuery: JQueryStatic.type,
     additionalSetupInitial: Element => Unit,
     additionalSetup: Element => Unit
 ) {
 
   def setup(element: Element, refreshService: RefreshService): Unit = {
-
     additionalSetup(element)
 
-    jQuery(element).find("[data-refresh]").each(refreshService.setupRefresh _)
+    element.querySelectorAll("[data-refresh]") foreach { node =>
+      refreshService.setupRefresh(node.asInstanceOf[Element])
+    }
   }
 
+  @SuppressWarnings(Array(Wart.Nothing))
   def setupInitial(body: Element, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
 
     additionalSetupInitial(body)
 
-    val jQueryBody = jQuery(body)
+    body.addEventListener("click", (e: Event) => {
 
-    jQueryBody.on("click", "a[data-progressive]", js.undefined, (element: Element) =>
-      hijaxService.ajaxLinkClick(jQuery(element)))
+      val element = e.target.asInstanceOf[Element]
 
-    jQueryBody.on("click", "form[data-progressive] button[type=submit]", js.undefined, (element: Element) =>
-      hijaxService.ajaxSubmitButtonClick(jQuery(element)))
+      if (element.matches("a[data-progressive]")) {
+        hijaxService.ajaxLinkClick(e, element.asInstanceOf[html.Anchor])
+      } else if (element.matches("form[data-progressive] button[data-progressive]")) {
+        hijaxService.ajaxSubmitButtonClick(element.asInstanceOf[html.Button])
+      }
 
-    jQueryBody.on("submit", "form[data-progressive]", js.undefined, (element: Element) =>
-      hijaxService.ajaxFormSubmit(jQuery(element)))
+    })
+
+    body.addEventListener("submit", (e: Event) => {
+      val element = e.target.asInstanceOf[Element]
+
+      if (element.matches("form[data-progressive]")) {
+        hijaxService.ajaxFormSubmit(e, element.asInstanceOf[html.Form])
+      }
+    })
 
     setup(body, refreshService)
   }

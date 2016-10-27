@@ -2,33 +2,31 @@ package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
 import org.danielnixon.progressive.shared.Wart
-import org.querki.jquery._
 import org.scalajs.dom.Window
-import org.scalajs.dom.html._
+import org.scalajs.dom.html.Element
 import org.scalajs.dom.raw.HTMLFormElement
 
-class FocusManagementService(window: Window, mainElement: JQuery, userAgentService: UserAgentService) {
+class FocusManagementService(window: Window, mainElement: Element, userAgentService: UserAgentService) {
 
-  def setFocus(element: JQuery): JQuery = {
-    if (element.length > 0) {
-      // Calling focus() can cause the page to jump around, even if the element being
-      // focused is currently visible. Note the current offset and restore it after focusing.
-      val originalX = window.pageXOffset
-      val originalY = window.pageYOffset
-      element.css("outline", "none").attr("tabindex", "-1").focus()
-      window.scrollTo(originalX.toInt, originalY.toInt)
+  def setFocus(element: Element): Unit = {
+    // Calling focus() can cause the page to jump around, even if the element being
+    // focused is currently visible. Note the current offset and restore it after focusing.
+    val originalX = window.pageXOffset
+    val originalY = window.pageYOffset
+    element.style.outline = "none"
+    element.tabIndex = -1
+    element.focus()
+    window.scrollTo(originalX.toInt, originalY.toInt)
 
-      // Now update the scroll position ourselves, ensuring that the top of the element
-      // being focused is scrolled into view.
-      val newY = element.offset.top - mainElement.offset.top - 10D
-      val top = window.pageYOffset
-      val bottom = top + window.innerHeight
-      val shouldScroll = top > newY || newY > bottom
-      if (shouldScroll) {
-        window.scrollTo(0, newY.toInt)
-      }
+    // Now update the scroll position ourselves, ensuring that the top of the element
+    // being focused is scrolled into view.
+    val newY = element.offsetTop - mainElement.offsetTop - 10D
+    val top = window.pageYOffset
+    val bottom = top + window.innerHeight
+    val shouldScroll = top > newY || newY > bottom
+    if (shouldScroll) {
+      window.scrollTo(0, newY.toInt)
     }
-    element
   }
 
   def anythingHasFocus = Option(window.document.querySelector(":focus")).isDefined
