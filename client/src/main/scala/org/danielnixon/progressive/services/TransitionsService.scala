@@ -22,14 +22,14 @@ class TransitionsService(
 
   private def fadeOutAnimation(target: html.Element, busyMessage: Option[String]): Future[Unit] = {
     val skipFadeOut = target.textContent.trim.isEmpty
-    val transitionOutFut = animationService.transitionOut(Some(target), if (skipFadeOut) Some(0) else None)
+    val transitionOutFut = animationService.transitionOut(target, if (skipFadeOut) Some(0) else None)
 
     busyMessage.foreach(announce)
 
     transitionOutFut.flatMap { _ =>
       busyMessage map { m =>
         target.innerHTML = views.loading(m).render
-        animationService.transitionIn(Some(target), preserveHeight = true)
+        animationService.transitionIn(target, preserveHeight = true)
       } getOrElse {
         Future.successful(())
       }
@@ -37,10 +37,10 @@ class TransitionsService(
   }
 
   private def fadeIn(target: html.Element, newHtml: String, preRender: Element => Unit): Future[Unit] = {
-    animationService.transitionOut(Some(target), None).flatMap { _ =>
+    animationService.transitionOut(target, None).flatMap { _ =>
       target.innerHTML = newHtml
       preRender(target)
-      animationService.transitionIn(Some(target))
+      animationService.transitionIn(target)
     }
   }
 
@@ -69,7 +69,7 @@ class TransitionsService(
 
       elemToRemove match {
         case Some(elem) =>
-          val fut = animationService.transitionOut(Some(elem), None)
+          val fut = animationService.transitionOut(elem, None)
           fut.onComplete(_ => elem.parentNode.removeChild(elem))
           fut
         case None =>
