@@ -5,6 +5,7 @@ import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.extensions.dom._
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api._
+import org.danielnixon.progressive.shared.http.{ HeaderNames, MimeTypes }
 import org.scalajs.dom.html.{ Anchor, Button, Form }
 
 import scala.collection.immutable.Seq
@@ -154,11 +155,11 @@ class HijaxService(
       handleGetFormSubmit(form, action, targetAction, targetOpt)
     }
 
-    val isFileUpload = form.enctype === "multipart/form-data"
+    val isFileUpload = form.enctype === MimeTypes.FORM_DATA
     val request = makeRequest(form, method, serializedForm, targetAction, isFileUpload).future
 
     val trigger = submitButton.getOrElse(form)
-    val elemToRemove = if (settings.remove) trigger.closest(".item").map(_.asInstanceOf[html.Element]) else None
+    val elemToRemove = if (settings.remove) trigger.closest(".removable").map(_.asInstanceOf[html.Element]) else None
     val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
 
     fut map { _ =>
@@ -184,7 +185,7 @@ class HijaxService(
   }
 
   private def makeRequest(formElement: Form, method: String, serializedForm: String, targetAction: String, isFileUpload: Boolean): AjaxRequest = {
-    val headers = if (isFileUpload) Map.empty[String, String] else Map("Content-Type" -> "application/x-www-form-urlencoded")
+    val headers = if (isFileUpload) Map.empty[String, String] else Map(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
     ajaxService.ajax(method, targetAction, Some(if (isFileUpload) new FormData(formElement) else serializedForm), headers)
   }
 

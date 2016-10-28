@@ -5,6 +5,7 @@ import org.scalajs.dom.ext.Ajax.InputData
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
+import org.danielnixon.progressive.shared.http.{ HeaderNames, HeaderValues }
 
 import scala.concurrent.{ Future, Promise }
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -20,7 +21,7 @@ final class AjaxRequest(val future: Future[AjaxResponse], val abort: () => Unit)
 
 class AjaxService {
 
-  private val ajaxHeaders = Map("X-Requested-With" -> "XMLHttpRequest")
+  private val ajaxHeaders = Map(HeaderNames.X_REQUESTED_WITH -> HeaderValues.XML_HTTP_REQUEST)
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajax(method: String, url: String, data: Option[InputData], headers: Map[String, String]): AjaxRequest = {

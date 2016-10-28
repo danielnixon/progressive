@@ -22,11 +22,11 @@ class TransitionsService(
 
   private def fadeOutAnimation(target: html.Element, busyMessage: Option[String]): Future[Unit] = {
     val skipFadeOut = target.textContent.trim.isEmpty
-    val promise = animationService.transitionOut(Some(target), if (skipFadeOut) Some(0) else None)
+    val transitionOutFut = animationService.transitionOut(Some(target), if (skipFadeOut) Some(0) else None)
 
     busyMessage.foreach(announce)
 
-    promise.flatMap { _ =>
+    transitionOutFut.flatMap { _ =>
       busyMessage map { m =>
         target.innerHTML = views.loading(m).render
         animationService.transitionIn(Some(target), preserveHeight = true)
