@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.shared.api
 
 import io.circe.{ Decoder, Encoder }
-import io.circe.generic.semiauto._
+import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import org.danielnixon.progressive.shared.Wart
 
 final case class SubmitButtonSettings(
@@ -9,10 +9,10 @@ final case class SubmitButtonSettings(
   busyMessage: Option[String] = None
 )
 
-@SuppressWarnings(Array(Wart.AsInstanceOf))
+@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
 object SubmitButtonSettings {
-  implicit val decoder: Decoder[SubmitButtonSettings] = deriveFor[SubmitButtonSettings].decoder
-  implicit val encoder: Encoder[SubmitButtonSettings] = deriveFor[SubmitButtonSettings].encoder
+  implicit val decoder: Decoder[SubmitButtonSettings] = deriveDecoder[SubmitButtonSettings]
+  implicit val encoder: Encoder[SubmitButtonSettings] = deriveEncoder[SubmitButtonSettings]
 
   def asJson(target: SubmitButtonSettings): String = Json.asJson(target)
 

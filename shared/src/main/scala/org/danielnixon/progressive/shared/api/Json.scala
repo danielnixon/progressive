@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.shared.api
 
-import io.circe.parse.decode
+import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder }
 import org.danielnixon.progressive.shared.Wart

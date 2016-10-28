@@ -1,6 +1,6 @@
 val scalaV = "2.11.8"
-val scalazVersion = "7.2.6"
-val circeVersion = "0.2.0"
+val scalazVersion = "7.2.7"
+val circeVersion = "0.5.4"
 
 scalaVersion := scalaV
 
@@ -135,9 +135,9 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(
     name := "progressive-shared",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "scalatags" % "0.6.0",
+      "com.lihaoyi" %%% "scalatags" % "0.6.2",
       "io.circe" %%% "circe-core" % circeVersion,
-      "io.circe" %%% "circe-parse" % circeVersion,
+      "io.circe" %%% "circe-parser" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion
     )
   )

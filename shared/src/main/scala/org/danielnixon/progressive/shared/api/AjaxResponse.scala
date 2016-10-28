@@ -1,16 +1,16 @@
 package org.danielnixon.progressive.shared.api
 
 import io.circe.{ Decoder, Encoder }
-import io.circe.generic.semiauto.deriveFor
+import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import org.danielnixon.progressive.shared.Wart
 
 final case class AjaxResponse(message: Option[String], html: String)
 
-@SuppressWarnings(Array(Wart.AsInstanceOf))
+@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
 object AjaxResponse {
 
-  implicit val decoder: Decoder[AjaxResponse] = deriveFor[AjaxResponse].decoder
-  implicit val encoder: Encoder[AjaxResponse] = deriveFor[AjaxResponse].encoder
+  implicit val decoder: Decoder[AjaxResponse] = deriveDecoder[AjaxResponse]
+  implicit val encoder: Encoder[AjaxResponse] = deriveEncoder[AjaxResponse]
 
   def asJson(ajaxResponse: AjaxResponse): String = Json.asJson(ajaxResponse)
 

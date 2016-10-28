@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.shared.api
 
 import io.circe.{ Decoder, Encoder }
-import io.circe.generic.semiauto.deriveFor
+import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import org.danielnixon.progressive.shared.Wart
 
 final case class FormSettings(
@@ -17,10 +17,10 @@ final case class FormSettings(
   remove: Boolean = false
 )
 
-@SuppressWarnings(Array(Wart.AsInstanceOf))
+@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
 object FormSettings {
-  implicit val decoder: Decoder[FormSettings] = deriveFor[FormSettings].decoder
-  implicit val encoder: Encoder[FormSettings] = deriveFor[FormSettings].encoder
+  implicit val decoder: Decoder[FormSettings] = deriveDecoder[FormSettings]
+  implicit val encoder: Encoder[FormSettings] = deriveEncoder[FormSettings]
 
   def asJson(target: FormSettings): String = Json.asJson(target)
 
