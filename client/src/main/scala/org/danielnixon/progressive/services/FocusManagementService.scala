@@ -6,7 +6,7 @@ import org.scalajs.dom.Window
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.raw.HTMLFormElement
 
-class FocusManagementService(window: Window, mainElement: Element, userAgentService: UserAgentService) {
+class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentService: UserAgentService) {
 
   def setFocus(element: Element): Unit = {
     // Calling focus() can cause the page to jump around, even if the element being
@@ -20,16 +20,28 @@ class FocusManagementService(window: Window, mainElement: Element, userAgentServ
 
     // Now update the scroll position ourselves, ensuring that the top of the element
     // being focused is scrolled into view.
-    val newY = element.offsetTop - mainElement.offsetTop - 10D
-    val top = window.pageYOffset
-    val bottom = top + window.innerHeight
-    val shouldScroll = top > newY || newY > bottom
+    val newY = {
+      val rect = element.getBoundingClientRect
+      val scrollTop = window.pageYOffset
+      val clientTop = window.document.body.clientTop
+
+      rect.top + scrollTop - clientTop - scrollOffset()
+    }
+
+    val shouldScroll = {
+      val top = window.pageYOffset
+      val bottom = top + window.innerHeight
+      top > newY || newY > bottom
+    }
+
     if (shouldScroll) {
       window.scrollTo(0, newY.toInt)
     }
   }
 
-  def anythingHasFocus = Option(window.document.querySelector(":focus")).isDefined
+  def anythingHasFocus: Boolean = {
+    Option(window.document.querySelector(":focus")).isDefined
+  }
 
   // Dismiss keyboard on iOS.
   @SuppressWarnings(Array(Wart.AsInstanceOf))

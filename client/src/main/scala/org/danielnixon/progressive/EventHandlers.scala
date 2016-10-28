@@ -14,4 +14,6 @@ trait EventHandlers {
   def applyDiff(element: Element): Boolean
 
   def includeInQueryString(element: Element): Boolean
+
+  def scrollOffset: Int
 }

@@ -23,7 +23,7 @@ class Progressive {
       historyService,
       userAgentService,
       new TransitionsService(dom.window, elements.announcementsElement, elements.errorElement, new AnimationService, views),
-      new FocusManagementService(dom.window, elements.mainElement, userAgentService),
+      new FocusManagementService(dom.window, eventHandlers.scrollOffset _, userAgentService),
       refreshService,
       new EnableDisableService,
       ajaxService,
