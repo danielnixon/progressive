@@ -22,6 +22,6 @@ class UserAgentService(window: Window) {
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   private def isDefined(obj: js.Object, prop: String): Boolean = {
-    !js.isUndefined(obj.asInstanceOf[js.Dynamic](prop))
+    !js.isUndefined(obj.asInstanceOf[js.Dynamic].selectDynamic(prop))
   }
 }
