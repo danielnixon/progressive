@@ -1,7 +1,6 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.progressive.facades.dom.ElementMatches.element2ElementMatches
+import org.danielnixon.progressive.extensions.dom.{ EventTargetWrapper, NodeListSeq }
 import org.danielnixon.progressive.shared.Wart
 import org.scalajs.dom.{ Element, Event, html }
 
@@ -24,25 +23,17 @@ class EventHandlerSetupService(
 
     additionalSetupInitial(body)
 
-    body.addEventListener("click", (e: Event) => {
+    body.on("click", "a[data-progressive]") { (e: Event, element: Element) =>
+      hijaxService.ajaxLinkClick(e, element.asInstanceOf[html.Anchor])
+    }
 
-      val element = e.target.asInstanceOf[Element]
+    body.on("click", "form[data-progressive] button[data-progressive]") { (e: Event, element: Element) =>
+      hijaxService.ajaxSubmitButtonClick(element.asInstanceOf[html.Button])
+    }
 
-      if (element.matches("a[data-progressive]")) {
-        hijaxService.ajaxLinkClick(e, element.asInstanceOf[html.Anchor])
-      } else if (element.matches("form[data-progressive] button[data-progressive]")) {
-        hijaxService.ajaxSubmitButtonClick(element.asInstanceOf[html.Button])
-      }
-
-    })
-
-    body.addEventListener("submit", (e: Event) => {
-      val element = e.target.asInstanceOf[Element]
-
-      if (element.matches("form[data-progressive]")) {
-        hijaxService.ajaxFormSubmit(e, element.asInstanceOf[html.Form])
-      }
-    })
+    body.on("submit", "form[data-progressive]") { (e: Event, element: Element) =>
+      hijaxService.ajaxFormSubmit(e, element.asInstanceOf[html.Form])
+    }
 
     setup(body, refreshService)
   }

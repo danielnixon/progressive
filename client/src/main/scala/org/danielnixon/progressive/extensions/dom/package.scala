@@ -4,10 +4,8 @@ import org.danielnixon.progressive.facades.dom.ElementMatches.element2ElementMat
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.scalajs.dom._
-import org.scalajs.dom.raw.NonDocumentTypeChildNode
+import org.scalajs.dom.raw.{ Event, NonDocumentTypeChildNode }
 
-import scalaz.{ Node => _, _ }
-import Scalaz._
 import scala.annotation.tailrec
 
 package object dom {
@@ -28,10 +26,9 @@ package object dom {
   implicit class ElementWrapper(val element: Element) extends AnyVal {
     def getAttributeOpt(name: String): Option[String] = element.getAttribute(name).toOption
 
-    @SuppressWarnings(Array(Wart.AsInstanceOf))
     def parentOpt: Option[Element] = {
       Option(element.parentNode) match {
-        case Some(parent) if parent.nodeType === Node.ELEMENT_NODE => Some(parent.asInstanceOf[Element])
+        case Some(parent: Element) => Some(parent)
         case _ => None
       }
     }
@@ -56,6 +53,20 @@ package object dom {
 
   implicit class NodeSelectorWrapper(val element: NodeSelector) extends AnyVal {
     def querySelectorOpt(selectors: String): Option[Element] = Option(element.querySelector(selectors))
+  }
+
+  implicit class EventTargetWrapper(val eventTarget: EventTarget) extends AnyVal {
+
+    @SuppressWarnings(Array(Wart.Nothing))
+    def on[T <: Event](events: String, selector: String)(handler: (T, Element) => Unit): Unit = {
+      eventTarget.addEventListener(events, (event: T) => {
+
+        event.target match {
+          case element: Element if element.matches(selector) => handler(event, element)
+          case _ =>
+        }
+      })
+    }
   }
 
 }
