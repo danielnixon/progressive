@@ -3,7 +3,16 @@ package org.danielnixon.progressive
 import org.danielnixon.progressive.services._
 import org.scalajs.dom
 
+/**
+  * Entry point for Progressive.
+  */
 class Progressive {
+  /**
+    * Initialize Progressive. Call this once per page load.
+    * @param views The [[Views]] implementation.
+    * @param elements The [[KeyElements]] implementation.
+    * @param eventHandlers The [[EventHandlers]] implementation.
+    */
   def initialize(
     views: Views,
     elements: KeyElements,
