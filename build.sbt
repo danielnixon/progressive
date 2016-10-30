@@ -9,7 +9,7 @@ import scalariform.formatter.preferences._
 lazy val commonSettings = Seq(
   organization := "org.danielnixon.progressive",
   licenses := Seq("GNU General Public License, Version 3" -> url("http://www.gnu.org/licenses/gpl-3.0.html")),
-  version := "0.5.0-SNAPSHOT",
+  version := "0.5.0",
   publishMavenStyle := true,
   publishArtifact in Test := false,
   publishTo := {
