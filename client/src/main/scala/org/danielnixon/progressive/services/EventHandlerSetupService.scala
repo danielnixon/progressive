@@ -2,6 +2,7 @@ package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.dom.{ EventTargetWrapper, NodeListSeq }
 import org.danielnixon.progressive.shared.Wart
+import org.danielnixon.progressive.shared.api.DataAttributes
 import org.scalajs.dom.{ Element, Event, html }
 
 @SuppressWarnings(Array(Wart.AsInstanceOf))
@@ -13,7 +14,7 @@ class EventHandlerSetupService(
   def setup(element: Element, refreshService: RefreshService): Unit = {
     additionalSetup(element)
 
-    element.querySelectorAll("[data-refresh]") foreach { node =>
+    element.querySelectorAll(s"[${DataAttributes.refresh}]") foreach { node =>
       refreshService.setupRefresh(node.asInstanceOf[Element])
     }
   }
@@ -23,15 +24,15 @@ class EventHandlerSetupService(
 
     additionalSetupInitial(body)
 
-    body.on("click", "a[data-progressive]") { (e: Event, element: Element) =>
+    body.on("click", s"a[${DataAttributes.progressive}]") { (e: Event, element: Element) =>
       hijaxService.ajaxLinkClick(e, element.asInstanceOf[html.Anchor])
     }
 
-    body.on("click", "form[data-progressive] button[data-progressive]") { (e: Event, element: Element) =>
+    body.on("click", s"form[${DataAttributes.progressive}] button[${DataAttributes.progressive}]") { (e: Event, element: Element) =>
       hijaxService.ajaxSubmitButtonClick(element.asInstanceOf[html.Button])
     }
 
-    body.on("submit", "form[data-progressive]") { (e: Event, element: Element) =>
+    body.on("submit", s"form[${DataAttributes.progressive}]") { (e: Event, element: Element) =>
       hijaxService.ajaxFormSubmit(e, element.asInstanceOf[html.Form])
     }
 

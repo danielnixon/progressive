@@ -1,6 +1,6 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.progressive.shared.api.{ FormSettings, LinkSettings, RefreshSettings, SubmitButtonSettings }
+import org.danielnixon.progressive.shared.api._
 
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
@@ -10,7 +10,7 @@ package object views {
     form(
       method := formMethod,
       action := formAction,
-      data.progressive := FormSettings.asJson(settings)
+      attr(DataAttributes.progressive) := FormSettings.asJson(settings)
     )
   }
 
@@ -19,20 +19,26 @@ package object views {
       `type` := "submit",
       formmethod := formMethod,
       formaction := formAction,
-      data.progressive := SubmitButtonSettings.asJson(settings)
+      attr(DataAttributes.progressive) := SubmitButtonSettings.asJson(settings)
     )
   }
 
   def progressiveLink(linkHref: String, settings: LinkSettings): TypedTag[String] = {
     a(
       href := linkHref,
-      data.progressive := LinkSettings.asJson(settings)
+      attr(DataAttributes.progressive) := LinkSettings.asJson(settings)
     )
   }
 
   def refresh(settings: RefreshSettings): TypedTag[String] = {
-    div(
-      data.refresh := RefreshSettings.asJson(settings)
-    )
+    div(attr(DataAttributes.refresh) := RefreshSettings.asJson(settings))
+  }
+
+  def refreshContent: TypedTag[String] = {
+    div(cls := CssClasses.refreshContent)
+  }
+
+  def progressiveTarget: TypedTag[String] = {
+    div(cls := CssClasses.target)
   }
 }

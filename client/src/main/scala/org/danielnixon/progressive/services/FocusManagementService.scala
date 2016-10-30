@@ -13,7 +13,6 @@ class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentS
     // focused is currently visible. Note the current offset and restore it after focusing.
     val originalX = window.pageXOffset
     val originalY = window.pageYOffset
-    element.style.outline = "none"
     element.tabIndex = -1
     element.focus()
     window.scrollTo(originalX.toInt, originalY.toInt)

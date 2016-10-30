@@ -26,6 +26,14 @@ package object views {
     applyAttributes(baseView, attributes)
   }
 
+  def refreshContent(html: Html): Html = {
+    applyAttributes(baseViews.refreshContent(raw(html.body)))
+  }
+
+  def progressiveTarget: Html = {
+    applyAttributes(baseViews.progressiveTarget)
+  }
+
   private def applyAttributes(view: TypedTag[String], attributes: Seq[(String, String)] = Nil): Html = {
     val attrs = attributes.map({ case (k, v) => attr(k) := v })
     val viewWithAttrs = attrs.foldLeft(view) { (v, attr) =>

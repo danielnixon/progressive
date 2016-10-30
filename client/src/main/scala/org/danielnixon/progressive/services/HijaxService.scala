@@ -40,7 +40,7 @@ class HijaxService(
     val targetElement = target flatMap {
       case Target.Next => element.nextElementSiblingOpt
       case Target.Parent => element.parentOpt
-      case Target.ChildTarget => element.querySelectorOpt(".target")
+      case Target.ChildTarget => element.querySelectorOpt(s".${CssClasses.target}")
     }
 
     targetElement.map(_.asInstanceOf[html.Element])
@@ -60,19 +60,17 @@ class HijaxService(
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxLinkClick(e: Event, element: Anchor): Unit = {
-    element.getAttributeOpt("data-progressive").flatMap(LinkSettings.fromJson) foreach { settings =>
+    element.getAttributeOpt(DataAttributes.progressive).flatMap(LinkSettings.fromJson) foreach { settings =>
 
-      if (!enableDisableService.isDisabled(element)) {
-        val targetOpt = getTarget(element, settings.target)
-        val queryStringArray = queryStringService.extractQueryStringParams(element.href)
-        val newUri = updateQueryString(queryStringArray)
-        historyService.pushState(newUri)
-        val ajaxHref = settings.href.getOrElse(element.href)
-        val request = ajaxService.get(ajaxHref)
+      val targetOpt = getTarget(element, settings.target)
+      val queryStringArray = queryStringService.extractQueryStringParams(element.href)
+      val newUri = updateQueryString(queryStringArray)
+      historyService.pushState(newUri)
+      val ajaxHref = settings.href.getOrElse(element.href)
+      val request = ajaxService.get(ajaxHref)
 
-        fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage)
-        targetOpt.foreach(target => focusManagementService.setFocus(target))
-      }
+      fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage)
+      targetOpt.foreach(target => focusManagementService.setFocus(target))
     }
 
     e.preventDefault()
@@ -92,32 +90,27 @@ class HijaxService(
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxFormSubmit(e: Event, form: Form): Unit = {
 
-    val result = form.getAttributeOpt("data-progressive").flatMap(FormSettings.fromJson) match {
+    val result = form.getAttributeOpt(DataAttributes.progressive).flatMap(FormSettings.fromJson) match {
       case None => false
       case Some(formSettings) =>
 
         val submitButton = form.querySelectorOpt("button[type=submit][data-clicked]").map(_.asInstanceOf[Button])
         clearClickedButtons(form)
+        val confirmed = formSettings.confirmMessage.forall(window.confirm)
 
-        if (enableDisableService.isDisabled(form) || submitButton.exists(enableDisableService.isDisabled)) {
+        if (!confirmed) {
           false
         } else {
-          val confirmed = formSettings.confirmMessage.forall(window.confirm)
+          formSettings.confirmedAction.foreach(action => form.setAttribute("action", action))
 
-          if (!confirmed) {
-            false
+          if (!formSettings.ajax) {
+            true
           } else {
-            formSettings.confirmedAction.foreach(action => form.setAttribute("action", action))
-
-            if (!formSettings.ajax) {
-              true
-            } else {
-              if (preFormSubmit(form)) {
-                val fut = submitAjaxForm(form, formSettings, submitButton)
-                fut.onComplete(_ => postFormSubmit(form))
-              }
-              false
+            if (preFormSubmit(form)) {
+              val fut = submitAjaxForm(form, formSettings, submitButton)
+              fut.onComplete(_ => postFormSubmit(form))
             }
+            false
           }
         }
     }
@@ -159,12 +152,12 @@ class HijaxService(
     val request = makeRequest(form, method, serializedForm, targetAction, isFileUpload).future
 
     val trigger = submitButton.getOrElse(form)
-    val elemToRemove = if (settings.remove) trigger.closest(".removable").map(_.asInstanceOf[html.Element]) else None
+    val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
     val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
 
     fut map { _ =>
       targetOpt.foreach(target => focusTargetIfRequired(settings, target))
-      form.closest("[data-refresh]").foreach(x => triggerRefreshIfRequired(settings, x))
+      form.closest(s"[${DataAttributes.refresh}]").foreach(x => triggerRefreshIfRequired(settings, x))
       if (isFileUpload) {
         form.reset()
       }
@@ -174,7 +167,7 @@ class HijaxService(
   private def mergeSettings(formSettings: FormSettings, submitButton: Option[Button]): FormSettings = {
 
     val submitButtonSettings = submitButton.flatMap { e =>
-      e.getAttributeOpt("data-progressive").flatMap(SubmitButtonSettings.fromJson)
+      e.getAttributeOpt(DataAttributes.progressive).flatMap(SubmitButtonSettings.fromJson)
     }
 
     formSettings.copy(
@@ -219,7 +212,7 @@ class HijaxService(
 
   private def fadeOutFadeIn(
     request: Future[AjaxResponse],
-    trigger: Element,
+    trigger: html.Element,
     targetOpt: Option[html.Element],
     reloadPage: Boolean,
     elemToRemove: Option[html.Element],

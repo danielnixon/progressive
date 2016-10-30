@@ -5,7 +5,7 @@ import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
 import org.danielnixon.progressive.facades.es6.WeakMap
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
 import org.danielnixon.progressive.shared.Wart
-import org.danielnixon.progressive.shared.api.RefreshSettings
+import org.danielnixon.progressive.shared.api.{ CssClasses, DataAttributes, RefreshSettings }
 import org.scalajs.dom.Element
 import org.scalajs.dom.raw.HTMLElement
 
@@ -23,14 +23,13 @@ class RefreshService(
 
   private object Data {
     val paused = "data-paused"
-    val refresh = "data-refresh"
   }
 
   private val refreshRequestMap = new WeakMap[Element, AjaxRequest]
   private val vdomMap = new WeakMap[Element, VTree]
 
   private def vDomTarget(element: Element): Element = {
-    element.querySelectorOpt(".refresh-content").getOrElse(element)
+    element.querySelectorOpt(s".${CssClasses.refreshContent}").getOrElse(element)
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
@@ -43,7 +42,7 @@ class RefreshService(
 
     val alreadyRefreshing = refreshRequestMap.has(element)
 
-    element.getAttributeOpt(Data.refresh) match {
+    element.getAttributeOpt(DataAttributes.refresh) match {
       case Some(url) if !alreadyRefreshing =>
         val request = ajaxService.get(url)
         refreshRequestMap.set(element, request)
@@ -81,11 +80,11 @@ class RefreshService(
   }
 
   def setupRefresh(element: Element): Unit = {
-    element.getAttributeOpt(Data.refresh).flatMap(RefreshSettings.fromJson) foreach { settings =>
+    element.getAttributeOpt(DataAttributes.refresh).flatMap(RefreshSettings.fromJson) foreach { settings =>
 
       vdomMap.set(element, createVdom(element))
 
-      element.setAttribute(Data.refresh, settings.url)
+      element.setAttribute(DataAttributes.refresh, settings.url)
 
       settings.interval map { interval =>
         setInterval(interval.toDouble) {
@@ -99,8 +98,8 @@ class RefreshService(
   }
 
   def updateRefresh(element: Element, url: String): Unit = {
-    if (element.hasAttribute(Data.refresh)) {
-      element.setAttribute(Data.refresh, url)
+    if (element.hasAttribute(DataAttributes.refresh)) {
+      element.setAttribute(DataAttributes.refresh, url)
       vdomMap.delete(element)
     }
   }
