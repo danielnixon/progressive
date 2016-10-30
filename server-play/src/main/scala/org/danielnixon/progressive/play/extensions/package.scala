@@ -1,4 +1,4 @@
-package org.danielnixon.progressive
+package org.danielnixon.progressive.play
 
 import org.danielnixon.progressive.shared.http.{ HeaderNames, HeaderValues }
 import play.api.mvc.RequestHeader

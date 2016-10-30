@@ -107,7 +107,7 @@ lazy val serverPlay = (project in file("server-play")).
       "com.typesafe.play" %% "play" % "2.5.9"
     )
   ).
-  dependsOn(sharedJvm)
+  dependsOn(sharedJvm, server)
 
 lazy val client = (project in file("client")).
   settings(commonSettings: _*).
