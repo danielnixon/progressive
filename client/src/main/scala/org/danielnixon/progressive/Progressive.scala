@@ -42,6 +42,7 @@ class Progressive {
         ajaxService,
         eventHandlerSetupService,
         formSerializer,
+        new EventService,
         eventHandlers.preFormSubmit,
         eventHandlers.postFormSubmit
       )

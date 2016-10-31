@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.play
 
-import org.danielnixon.progressive.shared.api.{ FormSettings, RefreshSettings, SubmitButtonSettings }
+import org.danielnixon.progressive.shared.api.{ FormSettings, LinkSettings, RefreshSettings, SubmitButtonSettings }
 import org.danielnixon.progressive.{ views => baseViews }
 import play.api.mvc.Call
 import play.twirl.api.Html
@@ -19,6 +19,10 @@ package object views {
 
   def progressiveSubmitButton(action: Call, settings: SubmitButtonSettings)(html: Html): Html = {
     applyAttributes(baseViews.progressiveSubmitButton(action.method, action.url, settings)(raw(html.body)))
+  }
+
+  def progressiveLink(action: Call, settings: LinkSettings)(html: Html): Html = {
+    applyAttributes(baseViews.progressiveLink(action.toString, settings)(raw(html.body)))
   }
 
   def refresh(url: Call, interval: Option[Int] = None, attributes: Seq[(String, String)] = Nil)(html: Html): Html = {

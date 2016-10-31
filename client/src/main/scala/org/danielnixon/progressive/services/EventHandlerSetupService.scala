@@ -3,7 +3,7 @@ package org.danielnixon.progressive.services
 import org.danielnixon.progressive.extensions.dom.{ EventTargetWrapper, NodeListSeq }
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.DataAttributes
-import org.scalajs.dom.{ Element, Event, html }
+import org.scalajs.dom.{ Element, Event, MouseEvent, html }
 
 @SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(
@@ -24,7 +24,7 @@ class EventHandlerSetupService(
 
     additionalSetupInitial(body)
 
-    body.on("click", s"a[${DataAttributes.progressive}]") { (e: Event, element: Element) =>
+    body.on("click", s"a[${DataAttributes.progressive}]") { (e: MouseEvent, element: Element) =>
       hijaxService.ajaxLinkClick(e, element.asInstanceOf[html.Anchor])
     }
 

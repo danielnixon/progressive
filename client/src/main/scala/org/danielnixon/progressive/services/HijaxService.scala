@@ -25,6 +25,7 @@ class HijaxService(
     ajaxService: AjaxService,
     eventHandlerSetupService: EventHandlerSetupService,
     formSerializer: FormSerializer,
+    eventService: EventService,
     preFormSubmit: Element => Boolean,
     postFormSubmit: Element => Unit
 ) {
@@ -59,7 +60,9 @@ class HijaxService(
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def ajaxLinkClick(e: Event, element: Anchor): Unit = {
+  def ajaxLinkClick(e: MouseEvent, element: Anchor): Unit = {
+
+    if (eventService.shouldHijackLinkClick(e)) {
     element.getAttributeOpt(DataAttributes.progressive).flatMap(LinkSettings.fromJson) foreach { settings =>
 
       val targetOpt = getTarget(element, settings.target)
@@ -74,6 +77,7 @@ class HijaxService(
     }
 
     e.preventDefault()
+  }
   }
 
   private def clearClickedButtons(form: Element) = {
