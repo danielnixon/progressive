@@ -5,9 +5,10 @@ import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import org.danielnixon.progressive.shared.Wart
 
 final case class LinkSettings(
-  target: Option[Target] = None,
+  target: Target,
   busyMessage: Option[String] = None,
-  href: Option[String]
+  focusTarget: Boolean = true,
+  href: Option[String] = None
 )
 
 @SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))

@@ -37,20 +37,15 @@ class HijaxService(
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
-  private def getTarget(element: Element, target: Option[Target]): Option[html.Element] = {
-    val targetElement = target flatMap {
+  private def getTargetElement(element: Element, target: Target): Option[html.Element] = {
+    val targetElement = target match {
       case Target.Next => element.nextElementSiblingOpt
       case Target.Parent => element.parentOpt
       case Target.ChildTarget => element.querySelectorOpt(s".${CssClasses.target}")
+      case Target.ClosestRefresh => element.closest(s"[${DataAttributes.refresh}]")
     }
 
     targetElement.map(_.asInstanceOf[html.Element])
-  }
-
-  private def focusTargetIfRequired(settings: FormSettings, target: html.Element): Unit = {
-    if (!focusManagementService.anythingHasFocus && settings.focusTarget) {
-      focusManagementService.setFocus(target)
-    }
   }
 
   private def triggerRefreshIfRequired(settings: FormSettings, refreshTarget: Element): Unit = {
@@ -63,21 +58,27 @@ class HijaxService(
   def ajaxLinkClick(e: MouseEvent, element: Anchor): Unit = {
 
     if (eventService.shouldHijackLinkClick(e)) {
-    element.getAttributeOpt(DataAttributes.progressive).flatMap(LinkSettings.fromJson) foreach { settings =>
+      element.getAttributeOpt(DataAttributes.progressive).flatMap(LinkSettings.fromJson) foreach { settings =>
 
-      val targetOpt = getTarget(element, settings.target)
-      val queryStringArray = queryStringService.extractQueryStringParams(element.href)
-      val newUri = updateQueryString(queryStringArray)
-      historyService.pushState(newUri)
-      val ajaxHref = settings.href.getOrElse(element.href)
-      val request = ajaxService.get(ajaxHref)
+        val targetOpt = getTargetElement(element, settings.target)
+        val queryStringArray = queryStringService.extractQueryStringParams(element.href)
+        val newUri = updateQueryString(queryStringArray)
+        historyService.pushState(newUri)
+        val ajaxHref = settings.href.getOrElse(element.href)
+        val request = ajaxService.get(ajaxHref)
 
-      fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage)
-      targetOpt.foreach(target => focusManagementService.setFocus(target))
+        targetOpt foreach { target =>
+          refreshService.updateRefresh(target, ajaxHref)
+          if (settings.focusTarget) {
+            focusManagementService.setFocus(target)
+          }
+        }
+
+        fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage)
+      }
+
+      e.preventDefault()
     }
-
-    e.preventDefault()
-  }
   }
 
   private def clearClickedButtons(form: Element) = {
@@ -142,8 +143,8 @@ class HijaxService(
     }
 
     val targetOpt = submitButton match {
-      case Some(b) => getTarget(b, settings.target)
-      case None => getTarget(form, settings.target)
+      case Some(b) => settings.target.flatMap(x => getTargetElement(b, x))
+      case None => settings.target.flatMap(x => getTargetElement(form, x))
     }
 
     val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
@@ -159,8 +160,11 @@ class HijaxService(
     val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
     val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
 
+    if (settings.focusTarget) {
+      targetOpt.foreach(focusManagementService.setFocus)
+    }
+
     fut map { _ =>
-      targetOpt.foreach(target => focusTargetIfRequired(settings, target))
       form.closest(s"[${DataAttributes.refresh}]").foreach(x => triggerRefreshIfRequired(settings, x))
       if (isFileUpload) {
         form.reset()
@@ -194,10 +198,6 @@ class HijaxService(
   ): Unit = {
     updateUri(form, action)
     focusManagementService.dismissKeyboard(form)
-    updateAutoRefresh(targetAction, targetOpt)
-  }
-
-  private def updateAutoRefresh(targetAction: String, targetOpt: Option[Element]): Unit = {
     targetOpt.foreach(target => refreshService.updateRefresh(target, targetAction))
   }
 

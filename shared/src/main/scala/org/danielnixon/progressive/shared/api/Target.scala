@@ -17,6 +17,8 @@ object Target {
 
   case object ChildTarget extends Target
 
+  case object ClosestRefresh extends Target
+
   implicit val decoder: Decoder[Target] = deriveDecoder[Target]
   implicit val encoder: Encoder[Target] = deriveEncoder[Target]
 
