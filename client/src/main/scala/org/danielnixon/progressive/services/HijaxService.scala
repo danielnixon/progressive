@@ -158,6 +158,8 @@ class HijaxService(
 
     val trigger = submitButton.getOrElse(form)
     val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
+    elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]")).foreach(refreshService.invalidate)
+
     val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
 
     if (settings.focusTarget) {

@@ -100,8 +100,12 @@ class RefreshService(
   def updateRefresh(element: Element, url: String): Unit = {
     if (element.hasAttribute(DataAttributes.refresh)) {
       element.setAttribute(DataAttributes.refresh, url)
-      vdomMap.delete(element)
+      invalidate(element)
     }
+  }
+
+  def invalidate(element: Element): Unit = {
+    vdomMap.delete(element)
   }
 
   def pauseAutoRefresh(element: Element): Unit = {
