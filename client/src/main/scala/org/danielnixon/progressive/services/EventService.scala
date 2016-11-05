@@ -6,5 +6,5 @@ import scalaz._
 import Scalaz._
 
 class EventService {
-  def shouldHijackLinkClick(e: MouseEvent): Boolean = !(e.ctrlKey || e.metaKey || e.button === 1)
+  def shouldHijackLinkClick(e: MouseEvent): Boolean = !(e.shiftKey || e.ctrlKey || e.metaKey || e.button === 1)
 }

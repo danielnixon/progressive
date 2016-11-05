@@ -9,21 +9,19 @@ import Scalaz._
 
 class EnableDisableService {
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def disable(element: Element): Unit = {
-    element.disabled = true
+  def disable(element: Element): Unit = setDisabled(element, disabled = true)
 
-    if (element.nodeName === "FORM") {
-      element.querySelectorAll("[type=submit]").foreach(submit => disable(submit.asInstanceOf[Element]))
-    }
+  def enable(element: Element): Unit = setDisabled(element, disabled = false)
+
+  private def setDisabled(element: Element, disabled: Boolean): Unit = {
+    element.disabled = disabled
+    foreachSubmitButton(element, _.disabled = disabled)
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def enable(element: Element): Unit = {
-    element.disabled = false
-
+  private def foreachSubmitButton(element: Element, op: (Element) => Unit): Unit = {
     if (element.nodeName === "FORM") {
-      element.querySelectorAll("[type=submit]").foreach(submit => enable(submit.asInstanceOf[Element]))
+      element.querySelectorAll("[type=submit]").foreach(submit => op(submit.asInstanceOf[Element]))
     }
   }
 }
