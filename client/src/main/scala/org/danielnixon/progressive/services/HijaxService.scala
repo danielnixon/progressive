@@ -158,7 +158,9 @@ class HijaxService(
 
     val trigger = submitButton.getOrElse(form)
     val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
-    elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]")).foreach(refreshService.invalidate)
+    val closestRefresh = form.closest(s"[${DataAttributes.refresh}]")
+    val elemToRemoveClosestRefresh = elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]"))
+    elemToRemoveClosestRefresh.foreach(refreshService.invalidate)
 
     val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
 
@@ -167,7 +169,7 @@ class HijaxService(
     }
 
     fut map { _ =>
-      form.closest(s"[${DataAttributes.refresh}]").foreach(x => triggerRefreshIfRequired(settings, x))
+      closestRefresh.foreach(x => triggerRefreshIfRequired(settings, x))
       if (isFileUpload) {
         form.reset()
       }
