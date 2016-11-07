@@ -75,10 +75,9 @@ class TransitionsService(
           fut.onComplete(_ => elem.parentOpt.foreach(_.removeChild(elem)))
           fut
         case None =>
-          targetOpt map { target =>
-            fadeIn(target, response.html, preRender)
-          } getOrElse {
-            Future.successful(())
+          (targetOpt, response.html) match {
+            case (Some(target), Some(html)) => fadeIn(target, html, preRender)
+            case _ => Future.successful(())
           }
       }
     }

@@ -47,26 +47,28 @@ class RefreshService(
         val request = ajaxService.get(url)
         refreshRequestMap.set(element, request)
         val fut = request.future.map { ajaxResponse =>
-          val shouldApplyDiff = userTriggered || applyDiff(element)
 
-          if (shouldApplyDiff) {
-            // Get existing virtual DOM.
-            val targetVdom = vdomMap.get(element).toOption.getOrElse(createVdom(element))
+          ajaxResponse.html foreach { html =>
+            val shouldApplyDiff = userTriggered || applyDiff(element)
+            if (shouldApplyDiff) {
+              // Get existing virtual DOM.
+              val targetVdom = vdomMap.get(element).toOption.getOrElse(createVdom(element))
 
-            // Create new virtual DOM.
-            val newVdom = vdomParser(ajaxResponse.html)
-            vdomMap.set(element, newVdom)
+              // Create new virtual DOM.
+              val newVdom = vdomParser(html)
+              vdomMap.set(element, newVdom)
 
-            // Calculate patch.
-            val patchObject = virtualDom.diff(targetVdom, newVdom)
+              // Calculate patch.
+              val patchObject = virtualDom.diff(targetVdom, newVdom)
 
-            if (!patchObject.isEmpty) {
-              // Apply patch.
-              val target = vDomTarget(element)
-              virtualDom.patch(target, patchObject)
+              if (!patchObject.isEmpty) {
+                // Apply patch.
+                val target = vDomTarget(element)
+                virtualDom.patch(target, patchObject)
 
-              // Re-bind event handlers, etc.
-              eventHandlerSetupService.setup(element, this)
+                // Re-bind event handlers, etc.
+                eventHandlerSetupService.setup(element, this)
+              }
             }
           }
         }
