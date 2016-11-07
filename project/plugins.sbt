@@ -8,4 +8,7 @@ addSbtPlugin("com.sksamuel.scapegoat" % "sbt-scapegoat" % "1.0.4")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "1.1.1")
 addSbtPlugin("org.danielnixon" % "sbt-playwarts" % "0.28")
 
+// coverage
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+
 addSbtPlugin("org.danielnixon" % "sbt-ignore-play-generated" % "0.1")

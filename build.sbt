@@ -128,6 +128,7 @@ lazy val client = (project in file("client")).
     jsEnv := JSDOMNodeJSEnv().value
   ).
   enablePlugins(ScalaJSPlugin).
+  disablePlugins(ScoverageSbtPlugin). // TODO https://github.com/scoverage/sbt-scoverage/issues/101
   dependsOn(sharedJs)
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
@@ -140,7 +141,8 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
       "io.circe" %%% "circe-parser" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion
     )
-  )
+  ).
+  disablePlugins(ScoverageSbtPlugin) // TODO https://github.com/scoverage/sbt-scoverage/issues/101
 
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
