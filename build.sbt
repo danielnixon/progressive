@@ -58,7 +58,6 @@ lazy val commonSettings = Seq(
   // wartremover
   wartremoverErrors ++= Seq(
     Wart.Any,
-    Wart.Any2StringAdd,
     Wart.AsInstanceOf,
     Wart.IsInstanceOf,
     Wart.EitherProjectionPartial,
@@ -76,6 +75,7 @@ lazy val commonSettings = Seq(
     Wart.Product,
     Wart.Return,
     Wart.Serializable,
+    Wart.StringPlusAny,
     Wart.Throw,
     Wart.ToString,
     Wart.TryPartial,
