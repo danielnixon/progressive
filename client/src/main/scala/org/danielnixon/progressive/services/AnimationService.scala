@@ -15,7 +15,7 @@ class AnimationService {
       m
     }
 
-    val minHeight = if (preserveHeight) element.getBoundingClientRect.height + "px" else initialMinHeight
+    val minHeight = if (preserveHeight) s"${element.getBoundingClientRect.height}px" else initialMinHeight
 
     val duration = {
       val defaultDuration = 400
