@@ -1,6 +1,6 @@
 val scalaV = "2.11.8"
 val scalazVersion = "7.2.7"
-val circeVersion = "0.5.4"
+val circeVersion = "0.6.0"
 
 scalaVersion := scalaV
 
@@ -118,7 +118,7 @@ lazy val client = (project in file("client")).
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.1",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
-      "org.scalatest" %%% "scalatest" % "3.0.0" % Test
+      "org.scalatest" %%% "scalatest" % "3.0.1" % Test
     ),
     jsDependencies ++= Seq(
       "org.webjars.npm" % "virtual-dom" % "2.1.1" / "virtual-dom.js",

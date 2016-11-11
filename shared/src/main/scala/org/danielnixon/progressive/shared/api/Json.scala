@@ -10,5 +10,5 @@ object Json {
   def asJson[A](t: A)(implicit e: Encoder[A]): String = t.asJson.noSpaces
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def fromJson[A](json: String)(implicit d: Decoder[A]): Option[A] = decode[A](json).toOption
+  def fromJson[A](json: String)(implicit d: Decoder[A]): Option[A] = decode[A](json).right.toOption
 }
