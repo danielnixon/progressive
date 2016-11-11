@@ -4,16 +4,17 @@ import org.danielnixon.progressive.Views
 import org.danielnixon.progressive.extensions.dom.ElementWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
-
-import org.scalajs.dom.{ Element, Window, html }
+import org.scalajs.dom.{ Element, Window }
+import org.scalajs.dom.raw.HTMLElement
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scala.util.{ Failure, Success }
 
 class TransitionsService(
     window: Window,
     announcementsElement: Element,
-    errorElement: html.Element,
+    errorElement: HTMLElement,
     animationService: AnimationService,
     views: Views
 ) {
@@ -22,7 +23,7 @@ class TransitionsService(
     announcementsElement.textContent = message
   }
 
-  private def fadeOutAnimation(target: html.Element, busyMessage: Option[String]): Future[Unit] = {
+  private def fadeOutAnimation(target: HTMLElement, busyMessage: Option[String]): Future[Unit] = {
     val skipFadeOut = target.textContent.trim.isEmpty
     val transitionOutFut = animationService.transitionOut(target, if (skipFadeOut) Some(0) else None)
 
@@ -38,7 +39,7 @@ class TransitionsService(
     }
   }
 
-  private def fadeIn(target: html.Element, newHtml: String, preRender: Element => Unit): Future[Unit] = {
+  private def fadeIn(target: HTMLElement, newHtml: String, preRender: Element => Unit): Future[Unit] = {
     animationService.transitionOut(target, None).flatMap { _ =>
       target.innerHTML = newHtml
       preRender(target)
@@ -46,21 +47,21 @@ class TransitionsService(
     }
   }
 
-  private def displayError(targetOpt: Option[html.Element], e: AjaxRequestException, preRender: Element => Unit) = {
-    announce(e.message)
+  private def displayError(targetOpt: Option[HTMLElement], message: String, html: String, preRender: Element => Unit) = {
+    announce(message)
 
     targetOpt map { target =>
-      fadeIn(target, views.error(e.html).render, preRender)
+      fadeIn(target, views.error(html).render, preRender)
     } getOrElse {
-      fadeIn(errorElement, views.globalError(e.html).render, preRender)
+      fadeIn(errorElement, views.globalError(html).render, preRender)
     }
   }
 
   private def handleResponse(
     response: AjaxResponse,
-    targetOpt: Option[html.Element],
+    targetOpt: Option[HTMLElement],
     reloadPage: Boolean,
-    elemToRemove: Option[html.Element],
+    elemToRemove: Option[HTMLElement],
     preRender: Element => Unit
   ): Future[Unit] = {
     if (reloadPage) {
@@ -86,10 +87,10 @@ class TransitionsService(
   @SuppressWarnings(Array(Wart.Any))
   def fadeOutFadeIn(
     request: Future[AjaxResponse],
-    targetOpt: Option[html.Element],
+    targetOpt: Option[HTMLElement],
     busyMessage: Option[String],
     reloadPage: Boolean,
-    elemToRemove: Option[html.Element],
+    elemToRemove: Option[HTMLElement],
     preRender: Element => Unit
   ): Future[Unit] = {
 
@@ -105,8 +106,10 @@ class TransitionsService(
       _ <- handleResponse(response, targetOpt, reloadPage, elemToRemove, preRender)
     } yield ()
 
-    fut.onFailure {
-      case e: AjaxRequestException => displayError(targetOpt, e, preRender)
+    fut onComplete {
+      case Success(_) => ()
+      case Failure(e: AjaxRequestException) => displayError(targetOpt, e.message, e.html, preRender)
+      case Failure(e: Throwable) => displayError(targetOpt, e.getMessage, e.getMessage, preRender)
     }
 
     fut

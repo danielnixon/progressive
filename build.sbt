@@ -52,9 +52,6 @@ lazy val commonSettings = Seq(
   scalariformPreferences := scalariformPreferences.value
     .setPreference(DoubleIndentClassDeclaration, true)
     .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true),
-  // scapegoat
-  scapegoatVersion := "1.2.1",
-  scapegoatDisabledInspections := Seq("WildcardImport", "MethodNames"),
   // wartremover
   wartremoverErrors ++= Seq(
     Wart.Any,

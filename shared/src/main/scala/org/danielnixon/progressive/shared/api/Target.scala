@@ -4,9 +4,7 @@ import io.circe.{ Decoder, Encoder }
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import org.danielnixon.progressive.shared.Wart
 
-sealed trait Target {
-  override def toString: String
-}
+sealed trait Target
 
 @SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
 object Target {
