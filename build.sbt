@@ -1,8 +1,8 @@
-val scalaV = "2.11.8"
+val scala211 = "2.11.8"
+val scala212 = "2.12.0"
+
 val scalazVersion = "7.2.7"
 val circeVersion = "0.6.0"
-
-scalaVersion := scalaV
 
 import scalariform.formatter.preferences._
 
@@ -34,7 +34,6 @@ lazy val commonSettings = Seq(
         </developer>
       </developers>
   },
-  scalaVersion := scalaV,
   scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
@@ -89,6 +88,8 @@ lazy val root = Project(
 lazy val server = (project in file("server")).
   settings(commonSettings: _*).
   settings(
+    scalaVersion := scala211,
+    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-server",
     libraryDependencies ++= Seq(
       "org.scalaz" %%% "scalaz-core" % scalazVersion
@@ -99,6 +100,8 @@ lazy val server = (project in file("server")).
 lazy val serverPlay = (project in file("server-play")).
   settings(commonSettings: _*).
   settings(
+    scalaVersion := scala211,
+    crossScalaVersions := Seq(scala211),
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play" % "2.5.9"
@@ -109,6 +112,8 @@ lazy val serverPlay = (project in file("server-play")).
 lazy val client = (project in file("client")).
   settings(commonSettings: _*).
   settings(
+    scalaVersion := scala211,
+    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-client",
     persistLauncher := true,
     persistLauncher in Test := false,
@@ -131,6 +136,8 @@ lazy val client = (project in file("client")).
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(commonSettings: _*).
   settings(
+    scalaVersion := scala211,
+    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-shared",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "scalatags" % "0.6.2",

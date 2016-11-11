@@ -7,4 +7,4 @@ before_install:
 install:
   - npm install
 script:
-   - sbt compile test
+   - sbt such test
