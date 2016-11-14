@@ -12,7 +12,7 @@ trait EventHandlers {
     * elements, etc. This method is invoked by Progressive exactly once per page load.
     * @param body The body element.
     */
-  def additionalSetupInitial(body: Element): Unit
+  def additionalSetupInitial(body: Element): Unit = ()
 
   /**
     * Use this method to set up page elements that have been updated by ajax forms, links or refresh elements.
@@ -20,27 +20,27 @@ trait EventHandlers {
     * have refresh elements set to refresh on a schedule.
     * @param element The element being set up.
     */
-  def additionalSetup(element: Element): Unit
+  def additionalSetup(element: Element): Unit = ()
 
   /**
     * Code to execute before an ajax form has been submitted.
     * @param form The form.
     * @return True if the form should be submitted, false otherwise.
     */
-  def preFormSubmit(form: Element): Boolean
+  def preFormSubmit(form: Element): Boolean = true
 
   /**
     * Code to execute after an ajax form has been submitted.
     * @param form The form.
     */
-  def postFormSubmit(form: Element): Unit
+  def postFormSubmit(form: Element): Unit = ()
 
   /**
     * Determines whether a virtual dom patch should be applied to a refresh element or not.
     * @param element The refresh element.
     * @return True if the virtual dom patch should be applied, false otherwise.
     */
-  def applyDiff(element: Element): Boolean
+  def applyDiff(element: Element): Boolean = true
 
   /**
     * When submitting an ajax form that has a `get` method, Progressive updates the query string to reflect
@@ -50,7 +50,7 @@ trait EventHandlers {
     * @param element The form element (input, select, textarea or button).
     * @return True if the form element should be included in the query string, false otherwise.
     */
-  def includeInQueryString(element: Element): Boolean
+  def includeInQueryString(element: Element): Boolean = true
 
   /**
     * A y-axis offset (in pixels) to use when scrolling an element into view. Useful when there
@@ -58,5 +58,5 @@ trait EventHandlers {
     * obscure the element being scrolled into view.
     * @return The offset in pixels to apply when scrolling an element into view.
     */
-  def scrollOffset: Int
+  def scrollOffset: Int = 0
 }
