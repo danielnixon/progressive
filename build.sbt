@@ -104,8 +104,10 @@ lazy val serverPlay = (project in file("server-play")).
     crossScalaVersions := Seq(scala211),
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.5.9"
-    )
+      "com.typesafe.play" %% "play" % "2.5.9",
+      "com.typesafe.play" %% "twirl-api" % "1.3.0"
+    ),
+    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0"
   ).
   dependsOn(sharedJvm, server)
 
