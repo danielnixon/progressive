@@ -7,7 +7,7 @@ import org.scalajs.dom.{ Element, Event, MouseEvent, html }
 
 @SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(
-    additionalSetupInitial: Element => Unit,
+    additionalSetupInitial: html.Element => Unit,
     additionalSetup: Element => Unit
 ) {
 
@@ -20,7 +20,7 @@ class EventHandlerSetupService(
   }
 
   @SuppressWarnings(Array(Wart.Nothing))
-  def setupInitial(body: Element, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
+  def setupInitial(body: html.Element, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
 
     additionalSetupInitial(body)
 

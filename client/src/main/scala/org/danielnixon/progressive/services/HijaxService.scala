@@ -26,8 +26,8 @@ class HijaxService(
     eventHandlerSetupService: EventHandlerSetupService,
     formSerializer: FormSerializer,
     eventService: EventService,
-    preFormSubmit: Element => Boolean,
-    postFormSubmit: Element => Unit
+    preFormSubmit: Form => Boolean,
+    postFormSubmit: Form => Unit
 ) {
 
   private def updateQueryString(params: Seq[QueryStringParam]): String = {

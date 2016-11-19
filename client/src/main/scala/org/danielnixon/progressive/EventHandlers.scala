@@ -1,6 +1,8 @@
 package org.danielnixon.progressive
 
 import org.scalajs.dom.Element
+import org.scalajs.dom.html.Form
+import org.scalajs.dom.raw.HTMLElement
 
 /**
   * Extension points to customize the behaviour of Progressive. You'll need to provide an implementation of
@@ -12,7 +14,7 @@ trait EventHandlers {
     * elements, etc. This method is invoked by Progressive exactly once per page load.
     * @param body The body element.
     */
-  def additionalSetupInitial(body: Element): Unit = ()
+  def additionalSetupInitial(body: HTMLElement): Unit = ()
 
   /**
     * Use this method to set up page elements that have been updated by ajax forms, links or refresh elements.
@@ -27,13 +29,13 @@ trait EventHandlers {
     * @param form The form.
     * @return True if the form should be submitted, false otherwise.
     */
-  def preFormSubmit(form: Element): Boolean = true
+  def preFormSubmit(form: Form): Boolean = true
 
   /**
     * Code to execute after an ajax form has been submitted.
     * @param form The form.
     */
-  def postFormSubmit(form: Element): Unit = ()
+  def postFormSubmit(form: Form): Unit = ()
 
   /**
     * Determines whether a virtual dom patch should be applied to a refresh element or not.

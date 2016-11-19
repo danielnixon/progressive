@@ -15,7 +15,7 @@ import scalaz.Scalaz._
 
 final case class AjaxRequestException(message: String, html: String) extends Exception
 
-// ScalaJSDefined so that it can be stored in jQuery data.
+// ScalaJSDefined so that it can be stored in a WeakMap.
 @ScalaJSDefined
 final class AjaxRequest(val future: Future[AjaxResponse], val abort: () => Unit) extends js.Object
 

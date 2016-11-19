@@ -11,7 +11,7 @@ import scala.scalajs.js.URIUtils
 class FormSerializer {
   // scalastyle:off cyclomatic.complexity
   def serializeSeq(form: Form): Seq[(Element, String, String)] = {
-    form.elements.to[Seq].flatMap({
+    form.elements.to[Seq] flatMap {
       case x: Select if x.name.nonEmpty && !x.disabled.exists(identity) =>
         if (x.multiple) x.options.filter(_.selected).map(opt => (x, x.name, opt.value)) else Seq((x, x.name, x.value))
       case x: Input if x.name.nonEmpty && !x.disabled.exists(identity) =>
@@ -28,7 +28,7 @@ class FormSerializer {
         Seq((x, x.name, x.value))
       case _ => Nil
 
-    })
+    }
   }
   // scalastyle:on cyclomatic.complexity
 
