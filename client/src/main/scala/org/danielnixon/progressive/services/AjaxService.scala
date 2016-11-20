@@ -65,7 +65,7 @@ class AjaxService {
           val fallbackErrorMessage = req.responseText.toOption.getOrElse(req.statusText)
           val ajaxResponse = AjaxResponse.fromJson(req.responseText)
           val message = ajaxResponse.flatMap(_.message).getOrElse(fallbackErrorMessage)
-          val html = ajaxResponse.flatMap(_.html).getOrElse(fallbackErrorMessage)
+          val html = ajaxResponse.flatMap(_.html).getOrElse(message)
           promise.failure(AjaxRequestException(message, html))
         }
       }
