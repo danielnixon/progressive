@@ -18,5 +18,7 @@ package object extensions {
     def referer: Option[String] = request.headers.get(REFERER)
 
     def flashErrorMessage: Option[String] = request.flash.get(FlashKeys.error)
+
+    def flashSuccessMessage: Option[String] = request.flash.get(FlashKeys.success)
   }
 }
