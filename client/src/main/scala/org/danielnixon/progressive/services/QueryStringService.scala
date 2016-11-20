@@ -1,15 +1,14 @@
 package org.danielnixon.progressive.services
 
-import org.scalajs.dom.html.{ Form, Input }
+import org.scalajs.dom.html.{ Element, Form, Input }
 import org.danielnixon.progressive.shared.Wart
-import org.scalajs.dom.{ Element, html }
 
 import scala.collection.immutable.Seq
 import scalaz.Scalaz._
 
 final case class QueryStringParam(name: String, value: Option[String])
 
-class QueryStringService(formSerializer: FormSerializer, includeInQueryString: Element => Boolean) {
+class QueryStringService(formSerializer: FormSerializer) {
   def appendQueryString(path: String, search: String): String = {
     if (search.nonEmpty) path + "?" + search else path
   }
@@ -52,7 +51,7 @@ class QueryStringService(formSerializer: FormSerializer, includeInQueryString: E
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def paramsForQueryString(form: Form): Seq[QueryStringParam] = {
 
-    def shouldInclude(element: html.Element) = {
+    def shouldInclude(element: Element) = {
       val isHiddenInputType = element match {
         case input: Input => input.`type` === "hidden"
         case _ => false
@@ -63,7 +62,7 @@ class QueryStringService(formSerializer: FormSerializer, includeInQueryString: E
 
     formSerializer.serializeSeq(form) map {
       case (element, name, value) =>
-        if (shouldInclude(element) && includeInQueryString(element)) {
+        if (shouldInclude(element)) {
           QueryStringParam(name, Some(value))
         } else {
           QueryStringParam(name, None)

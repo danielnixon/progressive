@@ -32,7 +32,7 @@ class Progressive {
 
       val hijaxService = new HijaxService(
         dom.window,
-        new QueryStringService(formSerializer, eventHandlers.includeInQueryString),
+        new QueryStringService(formSerializer),
         historyService,
         userAgentService,
         new TransitionsService(dom.window, elements.announcementsElement, elements.errorElement, new AnimationService, views),

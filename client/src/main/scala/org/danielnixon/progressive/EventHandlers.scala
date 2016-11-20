@@ -45,16 +45,6 @@ trait EventHandlers {
   def applyDiff(element: Element): Boolean = true
 
   /**
-    * When submitting an ajax form that has a `get` method, Progressive updates the query string to reflect
-    * the form submission. You may want to exclude some form elements from the query string, for example if their value
-    * is the default value for that query string parameter. Note that these elements won't be excluded if JavaScript is
-    * unavailable, so they must only be excluded for cosmetic reasons.
-    * @param element The form element (input, select, textarea or button).
-    * @return True if the form element should be included in the query string, false otherwise.
-    */
-  def includeInQueryString(element: Element): Boolean = true
-
-  /**
     * A y-axis offset (in pixels) to use when scrolling an element into view. Useful when there
     * are elements fixed at the top of the page, such as navbars or headers, that would otherwise
     * obscure the element being scrolled into view.
