@@ -42,12 +42,7 @@ abstract class ProgressiveErrorHandler extends HttpErrorHandler {
     */
   def onClientError(request: RequestHeader, statusCode: Int, message: String = ""): Future[Result] = {
     val errorMessage = clientErrorToErrorMessage(request, statusCode, message)
-
-    val response = Status(statusCode)
-
-    Future.successful {
-      if (request.isAjax) response(ajaxResponse(errorMessage)) else response(errorPage(request, statusCode, errorMessage))
-    }
+    errorResponse(request, errorMessage, statusCode)
   }
 
   /**
@@ -58,19 +53,19 @@ abstract class ProgressiveErrorHandler extends HttpErrorHandler {
     */
   def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
     val errorMessage = serverErrorToErrorMessage(request, exception)
-
     Logger.error(errorMessage, exception)
+    errorResponse(request, errorMessage, INTERNAL_SERVER_ERROR)
+  }
+
+  private def errorResponse(request: RequestHeader, errorMessage: String, statusCode: Int): Future[Result] = {
+    val status = Status(statusCode)
 
     Future.successful {
       request.isAjax match {
-        case true => InternalServerError(ajaxResponse(errorMessage))
+        case true => status(AjaxResponse.asJson(AjaxResponse(Some(errorMessage), None)))
         case false if request.method === POST => Redirect(request.referer.getOrElse("/")).flashingError(errorMessage)
-        case _ => InternalServerError(errorPage(request, INTERNAL_SERVER_ERROR, errorMessage))
+        case _ => status(errorPage(request, statusCode, errorMessage))
       }
     }
-  }
-
-  private def ajaxResponse(errorMessage: String): String = {
-    AjaxResponse.asJson(AjaxResponse(Some(errorMessage), None))
   }
 }
