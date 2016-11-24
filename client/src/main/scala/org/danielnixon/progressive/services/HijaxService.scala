@@ -48,12 +48,6 @@ class HijaxService(
     targetElement.map(_.asInstanceOf[html.Element])
   }
 
-  private def triggerRefreshIfRequired(settings: FormSettings, refreshTarget: Element): Unit = {
-    if (settings.triggerRefresh) {
-      refreshService.refresh(refreshTarget, userTriggered = true)
-    }
-  }
-
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxLinkClick(e: MouseEvent, element: Anchor): Unit = {
 
@@ -142,10 +136,9 @@ class HijaxService(
       if (isGet) queryStringService.appendQueryString(a, serializedForm) else a
     }
 
-    val targetOpt = submitButton match {
-      case Some(b) => settings.target.flatMap(x => getTargetElement(b, x))
-      case None => settings.target.flatMap(x => getTargetElement(form, x))
-    }
+    val trigger = submitButton.getOrElse(form)
+    val targetOpt = settings.target.flatMap(x => getTargetElement(trigger, x))
+    val refreshTargetOpt = settings.refreshTarget.flatMap(t => getTargetElement(form, t))
 
     val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
 
@@ -156,9 +149,7 @@ class HijaxService(
     val isFileUpload = form.enctype === MimeTypes.FORM_DATA
     val request = makeRequest(form, method, serializedForm, targetAction, isFileUpload).future
 
-    val trigger = submitButton.getOrElse(form)
     val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
-    val closestRefresh = form.closest(s"[${DataAttributes.refresh}]")
     val elemToRemoveClosestRefresh = elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]"))
     elemToRemoveClosestRefresh.foreach(refreshService.invalidate)
 
@@ -169,7 +160,7 @@ class HijaxService(
     }
 
     fut map { _ =>
-      closestRefresh.foreach(x => triggerRefreshIfRequired(settings, x))
+      refreshTargetOpt.foreach(x => refreshService.refresh(x, userTriggered = true))
       if (isFileUpload) {
         form.reset()
       }

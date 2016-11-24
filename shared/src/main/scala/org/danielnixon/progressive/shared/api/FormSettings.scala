@@ -7,7 +7,7 @@ import org.danielnixon.progressive.shared.Wart
 final case class FormSettings(
   ajax: Boolean = true,
   target: Option[Target] = None,
-  triggerRefresh: Boolean = true,
+  refreshTarget: Option[Target] = Some(Target.ClosestRefresh),
   busyMessage: Option[String] = None,
   focusTarget: Boolean = true,
   reloadPage: Boolean = false,
