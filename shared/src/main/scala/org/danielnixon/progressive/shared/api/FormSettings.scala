@@ -14,7 +14,8 @@ final case class FormSettings(
   confirmMessage: Option[String] = None,
   confirmedAction: Option[String] = None,
   ajaxAction: Option[String] = None,
-  remove: Boolean = false
+  remove: Boolean = false,
+  resetForm: Boolean = false
 )
 
 @SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))

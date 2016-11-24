@@ -137,8 +137,9 @@ class HijaxService(
     }
 
     val trigger = submitButton.getOrElse(form)
-    val targetOpt = settings.target.flatMap(x => getTargetElement(trigger, x))
-    val refreshTargetOpt = settings.refreshTarget.flatMap(t => getTargetElement(form, t))
+    val getTarget = (getTargetElement _).curried(trigger)
+    val targetOpt = settings.target.flatMap(getTarget)
+    val refreshTargetOpt = settings.refreshTarget.flatMap(getTarget)
 
     val isSecondarySubmitButton = clickedSubmitButtonFormMethod.isDefined
 
@@ -161,7 +162,7 @@ class HijaxService(
 
     fut map { _ =>
       refreshTargetOpt.foreach(x => refreshService.refresh(x, userTriggered = true))
-      if (isFileUpload) {
+      if (settings.resetForm) {
         form.reset()
       }
     }
