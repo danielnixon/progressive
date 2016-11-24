@@ -1,7 +1,10 @@
 package org.danielnixon.progressive
 
 import org.danielnixon.progressive.services._
+import org.danielnixon.progressive.shared.Wart
 import org.scalajs.dom
+
+import scala.scalajs.js
 
 /**
   * Entry point for Progressive.
@@ -21,7 +24,7 @@ class Progressive {
 
     val userAgentService = new UserAgentService(dom.window)
 
-    if (userAgentService.meetsRequirements) {
+    if (userAgentService.meetsRequirements && dependenciesExist) {
 
       val historyService = new HistoryService(dom.window)
       val ajaxService = new AjaxService
@@ -60,4 +63,7 @@ class Progressive {
       eventHandlerSetupService.setupInitial(elements.body, refreshService, hijaxService)
     }
   }
+
+  @SuppressWarnings(Array(Wart.Any))
+  private val dependenciesExist: Boolean = !Seq(Global.virtualDom, Global.vdomParser).exists(js.isUndefined)
 }

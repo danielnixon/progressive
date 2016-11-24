@@ -5,6 +5,9 @@ import org.danielnixon.progressive.shared.api._
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
+/**
+  * ScalaTags views for Progressive forms, links, etc.
+  */
 package object views {
   def progressiveForm(formMethod: String, formAction: String, settings: FormSettings): TypedTag[String] = {
     form(
