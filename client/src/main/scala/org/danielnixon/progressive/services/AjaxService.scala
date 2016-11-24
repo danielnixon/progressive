@@ -13,7 +13,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.ScalaJSDefined
 import scalaz.Scalaz._
 
-final case class AjaxRequestException(message: String, html: String) extends Exception
+final case class AjaxRequestException(message: String, html: String, invalidForm: Option[String]) extends Exception
 
 // ScalaJSDefined so that it can be stored in a WeakMap.
 @ScalaJSDefined
@@ -33,7 +33,7 @@ class AjaxService {
         case Some(ajaxResponse) =>
           Future.successful(ajaxResponse)
         case None =>
-          Future.failed[AjaxResponse](AjaxRequestException("Could not parse.", "Could not parse."))
+          Future.failed[AjaxResponse](AjaxRequestException("Could not parse.", "Could not parse.", None))
       }
     }
 
@@ -66,7 +66,8 @@ class AjaxService {
           val ajaxResponse = AjaxResponse.fromJson(req.responseText)
           val message = ajaxResponse.flatMap(_.message).getOrElse(fallbackErrorMessage)
           val html = ajaxResponse.flatMap(_.html).getOrElse(message)
-          promise.failure(AjaxRequestException(message, html))
+          val invalidForm = ajaxResponse.flatMap(_.invalidForm)
+          promise.failure(AjaxRequestException(message, html, invalidForm))
         }
       }
     }

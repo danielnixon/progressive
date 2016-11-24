@@ -10,7 +10,10 @@ import scala.annotation.tailrec
 
 package object dom {
 
-  // https://www.scala-js.org/doc/sjs-for-js/es6-to-scala-part3.html
+  /**
+    * Treat DOMList as a seq.
+    * @see https://www.scala-js.org/doc/sjs-for-js/es6-to-scala-part3.html
+    */
   implicit class NodeListSeq[T <: Node](nodes: DOMList[T]) extends IndexedSeq[T] {
     override def foreach[U](f: T => U): Unit = {
       for (i <- 0 until nodes.length) {

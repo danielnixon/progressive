@@ -5,7 +5,10 @@ import org.scalajs.dom.Element
 
 import scala.scalajs.js
 
-// https://developer.mozilla.org/en/docs/Web/API/Element/matches
+/**
+  * Facade for matches.
+  * @see https://developer.mozilla.org/en/docs/Web/API/Element/matches
+  */
 @js.native
 trait ElementMatches extends Element {
   def matches(selector: String): Boolean = js.native

@@ -1,6 +1,8 @@
 package org.danielnixon.progressive
 
-import org.scalajs.dom.Element
+import org.danielnixon.progressive.extensions.dom.NodeListSeq
+import org.danielnixon.progressive.shared.Wart
+import org.scalajs.dom.{ Element, html }
 import org.scalajs.dom.html.Form
 import org.scalajs.dom.raw.HTMLElement
 
@@ -26,16 +28,32 @@ trait EventHandlers {
 
   /**
     * Code to execute before an ajax form has been submitted.
+    * The default implementation resets any invalid form elements.
     * @param form The form.
     * @return True if the form should be submitted, false otherwise.
     */
-  def preFormSubmit(form: Form): Boolean = true
+  @SuppressWarnings(Array(Wart.AsInstanceOf))
+  def preFormSubmit(form: Form): Boolean = {
+    // Reset invalid form elements before resubmitting form.
+    form.querySelectorAll("[aria-invalid=true]") foreach { node =>
+      node.asInstanceOf[html.Element].removeAttribute("aria-invalid")
+    }
+
+    true
+  }
 
   /**
     * Code to execute after an ajax form has been submitted.
+    * The default implementation focuses the first invalid form element (if any).
     * @param form The form.
     */
-  def postFormSubmit(form: Form): Unit = ()
+  @SuppressWarnings(Array(Wart.AsInstanceOf))
+  def postFormSubmit(form: Form): Unit = {
+    // Focus the first invalid form element (if any).
+    form.querySelectorAll("[aria-invalid=true]") foreach { node =>
+      node.asInstanceOf[html.Element].focus()
+    }
+  }
 
   /**
     * Determines whether a virtual dom patch should be applied to a refresh element or not.

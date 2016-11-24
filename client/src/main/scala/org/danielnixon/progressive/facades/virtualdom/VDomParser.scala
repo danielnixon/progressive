@@ -5,7 +5,8 @@ import org.scalajs.dom.html
 import scala.scalajs.js
 
 /**
-  * See https://github.com/bitinn/vdom-parser
+  * Facade for vdom-parser.
+  * @see https://github.com/bitinn/vdom-parser
   */
 @js.native
 class VDomParser extends js.Object {

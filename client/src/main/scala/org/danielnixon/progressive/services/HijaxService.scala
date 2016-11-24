@@ -74,7 +74,7 @@ class HijaxService(
           }
         }
 
-        fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage)
+        fadeOutFadeIn(request.future, element, targetOpt, false, None, settings.busyMessage, form = None)
       }
 
       e.preventDefault()
@@ -162,7 +162,7 @@ class HijaxService(
     val elemToRemoveClosestRefresh = elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]"))
     elemToRemoveClosestRefresh.foreach(refreshService.invalidate)
 
-    val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage)
+    val fut = fadeOutFadeIn(request, trigger, targetOpt, settings.reloadPage, elemToRemove, settings.busyMessage, Some(form))
 
     if (settings.focusTarget) {
       targetOpt.foreach(focusManagementService.setFocus)
@@ -224,14 +224,15 @@ class HijaxService(
     targetOpt: Option[html.Element],
     reloadPage: Boolean,
     elemToRemove: Option[html.Element],
-    busyMessage: Option[String]
+    busyMessage: Option[String],
+    form: Option[html.Form]
   ): Future[Unit] = {
     val preRender = (target: Element) => eventHandlerSetupService.setup(target, refreshService)
 
     enableDisableService.disable(trigger)
     targetOpt.foreach(refreshService.pauseAutoRefresh)
 
-    val fut = transitionsService.fadeOutFadeIn(request, targetOpt, busyMessage, reloadPage, elemToRemove, preRender)
+    val fut = transitionsService.fadeOutFadeIn(request, targetOpt, busyMessage, reloadPage, elemToRemove, preRender, form)
 
     fut.onComplete { _ =>
       enableDisableService.enable(trigger)

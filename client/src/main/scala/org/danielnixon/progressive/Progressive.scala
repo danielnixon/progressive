@@ -35,7 +35,14 @@ class Progressive {
         new QueryStringService(formSerializer),
         historyService,
         userAgentService,
-        new TransitionsService(dom.window, elements.announcementsElement, elements.errorElement, new AnimationService, views),
+        new TransitionsService(
+          dom.window,
+          elements.announcementsElement,
+          elements.errorElement,
+          new AnimationService,
+          views,
+          new VDomService(Global.virtualDom, Global.vdomParser)
+        ),
         new FocusManagementService(dom.window, eventHandlers.scrollOffset _, userAgentService),
         refreshService,
         new EnableDisableService,

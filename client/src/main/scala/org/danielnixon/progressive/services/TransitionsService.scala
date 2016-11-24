@@ -4,7 +4,7 @@ import org.danielnixon.progressive.Views
 import org.danielnixon.progressive.extensions.dom.ElementWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
-import org.scalajs.dom.{ Element, Window }
+import org.scalajs.dom.{ Element, Window, html }
 import org.scalajs.dom.raw.HTMLElement
 
 import scala.concurrent.Future
@@ -16,7 +16,8 @@ class TransitionsService(
     announcementsElement: Element,
     errorElement: HTMLElement,
     animationService: AnimationService,
-    views: Views
+    views: Views,
+    vdomService: VDomService
 ) {
 
   private def announce(message: String): Unit = {
@@ -91,7 +92,8 @@ class TransitionsService(
     busyMessage: Option[String],
     reloadPage: Boolean,
     elemToRemove: Option[HTMLElement],
-    preRender: Element => Unit
+    preRender: Element => Unit,
+    form: Option[html.Form]
   ): Future[Unit] = {
 
     val animation = targetOpt.map { target =>
@@ -101,15 +103,20 @@ class TransitionsService(
     }
 
     val fut = for {
-      response <- request
       _ <- animation
+      response <- request
       _ <- handleResponse(response, targetOpt, reloadPage, elemToRemove, preRender)
     } yield ()
 
     fut onComplete {
       case Success(_) => ()
-      case Failure(e: AjaxRequestException) => displayError(targetOpt, e.message, e.html, preRender)
-      case Failure(e: Throwable) => displayError(targetOpt, e.getMessage, e.getMessage, preRender)
+      case Failure(AjaxRequestException(_, _, Some(invalidForm))) if form.isDefined =>
+        form.foreach(f => vdomService.update(f, invalidForm))
+        targetOpt.foreach(t => t.innerHTML = "")
+      case Failure(AjaxRequestException(message, html, _)) =>
+        displayError(targetOpt, message, html, preRender)
+      case Failure(e: Throwable) =>
+        displayError(targetOpt, e.getMessage, e.getMessage, preRender)
     }
 
     fut

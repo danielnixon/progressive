@@ -5,7 +5,8 @@ import org.scalajs.dom.Node
 import scala.scalajs.js
 
 /**
-  * See https://github.com/Matt-Esch/virtual-dom
+  * Facade for virtual-dom.
+  * @see https://github.com/Matt-Esch/virtual-dom
   */
 @js.native
 class VirtualDom extends js.Object {

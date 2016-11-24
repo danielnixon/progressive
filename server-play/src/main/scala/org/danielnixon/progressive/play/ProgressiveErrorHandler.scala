@@ -62,7 +62,7 @@ abstract class ProgressiveErrorHandler extends HttpErrorHandler {
 
     Future.successful {
       request.isAjax match {
-        case true => status(AjaxResponse.asJson(AjaxResponse(Some(errorMessage), None)))
+        case true => status(AjaxResponse.asJson(AjaxResponse(Some(errorMessage), None, None)))
         case false if request.method === POST => Redirect(request.referer.getOrElse("/")).flashingError(errorMessage)
         case _ => status(errorPage(request, statusCode, errorMessage))
       }
