@@ -2,11 +2,12 @@ package org.danielnixon.progressive.play
 
 import play.api.Logger
 import play.api.http.HttpErrorHandler
-import play.api.http.HttpVerbs.POST
+import play.api.http.HttpVerbs.{ GET, POST }
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.mvc.Results._
-import play.api.mvc.{ RequestHeader, Result }
+import play.api.mvc.{ Call, RequestHeader, Result }
 import org.danielnixon.progressive.play.extensions.{ RequestHeaderWrapper, ResultWrapper }
+import org.danielnixon.progressive.play.Results.redirectToRefererOrElse
 import org.danielnixon.progressive.shared.api.AjaxResponse
 import play.twirl.api.HtmlFormat
 
@@ -24,6 +25,11 @@ abstract class ProgressiveErrorHandler extends HttpErrorHandler {
     * A full server-rendered page to display when an error occurs.
     */
   def errorPage(request: RequestHeader, statusCode: Int, errorMessage: String): HtmlFormat.Appendable
+
+  /**
+    * The default route to use when redirecting a failed post request that did not have a referer.
+    */
+  def errorRoute: Call = Call(GET, "/")
 
   def clientErrorToErrorMessage(request: RequestHeader, statusCode: Int, message: String): String = {
     Option(message).filter(_.nonEmpty).getOrElse(statusCode.toString)
@@ -63,7 +69,7 @@ abstract class ProgressiveErrorHandler extends HttpErrorHandler {
     Future.successful {
       request.isAjax match {
         case true => status(AjaxResponse.asJson(AjaxResponse(Some(errorMessage), None, None)))
-        case false if request.method === POST => Redirect(request.referer.getOrElse("/")).flashingError(errorMessage)
+        case false if request.method === POST => redirectToRefererOrElse(errorRoute)(request).flashingError(errorMessage)
         case _ => status(errorPage(request, statusCode, errorMessage))
       }
     }

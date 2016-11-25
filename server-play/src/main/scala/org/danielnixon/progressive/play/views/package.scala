@@ -9,7 +9,7 @@ import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
 /**
-  * Twirl wrappers around scalatags views.
+  * Twirl wrappers around ScalaTags views.
   */
 package object views {
   def progressiveForm(action: Call, settings: FormSettings, attributes: Seq[(String, String)] = Nil)(html: Html): Html = {
