@@ -1,8 +1,8 @@
 val scala211 = "2.11.8"
 val scala212 = "2.12.1"
 
-val scalazVersion = "7.2.7"
-val circeVersion = "0.6.0"
+val scalazVersion = "7.2.8"
+val circeVersion = "0.6.1"
 
 import scalariform.formatter.preferences._
 
