@@ -2,7 +2,7 @@ val scala211 = "2.11.8"
 val scala212 = "2.12.1"
 
 val scalazVersion = "7.2.8"
-val circeVersion = "0.6.1"
+val circeVersion = "0.7.0"
 
 import scalariform.formatter.preferences._
 
@@ -104,7 +104,7 @@ lazy val serverPlay = (project in file("server-play")).
     crossScalaVersions := Seq(scala211),
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.5.10",
+      "com.typesafe.play" %% "play" % "2.5.12",
       "com.typesafe.play" %% "twirl-api" % "1.3.0"
     ),
     dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0",
