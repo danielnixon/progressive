@@ -107,34 +107,9 @@ lazy val serverPlay = (project in file("server-play")).
       "com.typesafe.play" %% "play" % "2.5.12",
       "com.typesafe.play" %% "twirl-api" % "1.3.0"
     ),
-    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0",
-    wartremoverErrors ++= Seq(
-      PlayWart.AssetsObject,
-      PlayWart.CookiesPartial,
-      PlayWart.FlashPartial,
-      PlayWart.FormPartial,
-      PlayWart.HeadersPartial,
-      PlayWart.JavaApi,
-      PlayWart.JsLookupResultPartial,
-      PlayWart.JsReadablePartial,
-      PlayWart.LangObject,
-      PlayWart.MessagesObject,
-      PlayWart.PlayGlobalExecutionContext,
-      PlayWart.SessionPartial,
-      PlayWart.DateFormatPartial,
-      PlayWart.EnumerationPartial,
-      PlayWart.FutureObject,
-      PlayWart.GenMapLikePartial,
-      PlayWart.GenTraversableLikeOps,
-      PlayWart.GenTraversableOnceOps,
-      PlayWart.LegacyDateTimeCode,
-      PlayWart.ScalaGlobalExecutionContext,
-      PlayWart.StringOpsPartial,
-      PlayWart.TraversableOnceOps,
-      PlayWart.UntypedEquality)
+    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0"
   ).
-  dependsOn(sharedJvm, server).
-  enablePlugins(PlayWarts)
+  dependsOn(sharedJvm, server)
 
 lazy val client = (project in file("client")).
   settings(commonSettings: _*).
