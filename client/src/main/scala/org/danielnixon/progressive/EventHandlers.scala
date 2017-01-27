@@ -2,9 +2,9 @@ package org.danielnixon.progressive
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
 import org.danielnixon.progressive.shared.Wart
-import org.scalajs.dom.{ Element, html }
-import org.scalajs.dom.html.Form
-import org.scalajs.dom.raw.HTMLElement
+import org.danielnixon.saferdom.{ Element, html }
+import org.danielnixon.saferdom.html.Form
+import org.danielnixon.saferdom.raw.HTMLElement
 
 /**
   * Extension points to customize the behaviour of Progressive. You'll need to provide an implementation of

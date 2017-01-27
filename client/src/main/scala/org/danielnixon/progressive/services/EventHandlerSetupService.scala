@@ -3,7 +3,7 @@ package org.danielnixon.progressive.services
 import org.danielnixon.progressive.extensions.dom.{ EventTargetWrapper, NodeListSeq }
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.DataAttributes
-import org.scalajs.dom.{ Element, Event, MouseEvent, html }
+import org.danielnixon.saferdom.{ Element, Event, MouseEvent, html }
 
 @SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(

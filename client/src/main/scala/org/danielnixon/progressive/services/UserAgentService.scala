@@ -1,13 +1,15 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.shared.Wart
-import org.scalajs.dom.Window
+import org.danielnixon.saferdom.Window
+import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits.html._
 
 import scala.scalajs.js
 
 class UserAgentService(window: Window) {
 
-  val isTouchDevice: Boolean = isDefined(window.document.documentElement, "ontouchstart")
+  val isTouchDevice: Boolean = window.document.documentElement.exists(d => isDefined(d, "ontouchstart"))
 
   /**
     * True if the current user agent meets Progressive's requirements, false otherwise.
@@ -17,7 +19,7 @@ class UserAgentService(window: Window) {
       isDefined(window, "history") &&
       isDefined(window.history, "pushState") &&
       isDefined(window.document, "querySelector") &&
-      isDefined(window.document.body, "matches")
+      window.document.body.exists(b => isDefined(b, "matches"))
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))

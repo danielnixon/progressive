@@ -2,7 +2,7 @@ package org.danielnixon.progressive
 
 import org.danielnixon.progressive.services._
 import org.danielnixon.progressive.shared.Wart
-import org.scalajs.dom
+import org.danielnixon.saferdom
 
 import scala.scalajs.js
 
@@ -22,11 +22,11 @@ class Progressive {
     eventHandlers: EventHandlers
   ): Unit = {
 
-    val userAgentService = new UserAgentService(dom.window)
+    val userAgentService = new UserAgentService(saferdom.window)
 
     if (userAgentService.meetsRequirements && dependenciesExist) {
 
-      val historyService = new HistoryService(dom.window)
+      val historyService = new HistoryService(saferdom.window)
       val ajaxService = new AjaxService
       val eventHandlerSetupService = new EventHandlerSetupService(eventHandlers.additionalSetupInitial, eventHandlers.additionalSetup)
       val refreshService = new RefreshService(Global.virtualDom, Global.vdomParser, eventHandlerSetupService, ajaxService, eventHandlers.applyDiff)
@@ -34,19 +34,19 @@ class Progressive {
       val formSerializer = new FormSerializer
 
       val hijaxService = new HijaxService(
-        dom.window,
+        saferdom.window,
         new QueryStringService(formSerializer),
         historyService,
         userAgentService,
         new TransitionsService(
-          dom.window,
+          saferdom.window,
           elements.announcementsElement,
           elements.errorElement,
           new AnimationService,
           views,
           new VDomService(Global.virtualDom, Global.vdomParser)
         ),
-        new FocusManagementService(dom.window, eventHandlers.scrollOffset _, userAgentService),
+        new FocusManagementService(saferdom.window, eventHandlers.scrollOffset _, userAgentService),
         refreshService,
         new EnableDisableService,
         ajaxService,
@@ -58,7 +58,7 @@ class Progressive {
       )
 
       historyService.initializeHistory()
-      dom.window.onpopstate = historyService.onPopState _
+      saferdom.window.onpopstate = historyService.onPopState _
 
       eventHandlerSetupService.setupInitial(elements.body, refreshService, hijaxService)
     }

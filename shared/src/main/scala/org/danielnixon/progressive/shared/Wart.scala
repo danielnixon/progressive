@@ -8,6 +8,7 @@ object Wart {
   final val AsInstanceOf = "org.wartremover.warts.AsInstanceOf"
   final val ExplicitImplicitTypes = "org.wartremover.warts.ExplicitImplicitTypes"
   final val Nothing = "org.wartremover.warts.Nothing"
+  final val OptionPartial = "org.wartremover.warts.OptionPartial"
   final val Throw = "org.wartremover.warts.Throw"
   final val ToString = "org.wartremover.warts.ToString"
 

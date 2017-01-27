@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.services
 
-import org.scalajs.dom
-import org.scalajs.dom.ext.Ajax.InputData
+import org.danielnixon.saferdom
+import org.danielnixon.saferdom.ext.Ajax.InputData
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
@@ -45,7 +45,7 @@ class AjaxService {
   }
 
   /**
-    * Based on org.scalajs.dom.ext.Ajax but exposes the underlying XMLHttpRequest so it can be aborted.
+    * Based on org.danielnixon.saferdom.ext.Ajax but exposes the underlying XMLHttpRequest so it can be aborted.
     */
   @SuppressWarnings(Array(Wart.Any, Wart.AsInstanceOf))
   private def makeRequest(
@@ -53,11 +53,11 @@ class AjaxService {
     url: String,
     data: Option[InputData],
     headers: Map[String, String]
-  ): (Future[dom.XMLHttpRequest], () => Unit) = {
-    val req = new dom.XMLHttpRequest()
-    val promise = Promise[dom.XMLHttpRequest]()
+  ): (Future[saferdom.XMLHttpRequest], () => Unit) = {
+    val req = new saferdom.XMLHttpRequest()
+    val promise = Promise[saferdom.XMLHttpRequest]()
 
-    req.onreadystatechange = { (e: dom.Event) =>
+    req.onreadystatechange = { (e: saferdom.Event) =>
       if (req.readyState === 4) {
         if ((req.status >= 200 && req.status < 300) || req.status === 304) {
           promise.success(req)

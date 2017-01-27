@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.facades.dom
 
 import org.danielnixon.progressive.shared.Wart
-import org.scalajs.dom.Element
+import org.danielnixon.saferdom.Element
 
 import scala.scalajs.js
 

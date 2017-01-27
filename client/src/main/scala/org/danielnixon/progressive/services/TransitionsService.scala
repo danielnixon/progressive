@@ -1,11 +1,11 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.Views
-import org.danielnixon.progressive.extensions.dom.ElementWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
-import org.scalajs.dom.{ Element, Window, html }
-import org.scalajs.dom.raw.HTMLElement
+import org.danielnixon.saferdom.{ Element, Window, html }
+import org.danielnixon.saferdom.raw.HTMLElement
+import org.danielnixon.saferdom.implicits.lib._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -74,7 +74,7 @@ class TransitionsService(
       elemToRemove match {
         case Some(elem) =>
           val fut = animationService.transitionOut(elem, None)
-          fut.onComplete(_ => elem.parentOpt.foreach(_.removeChild(elem)))
+          fut.onComplete(_ => elem.parentElement.foreach(_.removeChild(elem)))
           fut
         case None =>
           (targetOpt, response.html) match {

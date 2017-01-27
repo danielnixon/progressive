@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.services
 
-import org.scalajs.dom._
+import org.danielnixon.saferdom._
 
 import scalaz._
 import Scalaz._

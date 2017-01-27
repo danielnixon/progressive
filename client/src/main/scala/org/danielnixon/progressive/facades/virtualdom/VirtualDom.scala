@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.facades.virtualdom
 
-import org.scalajs.dom.Node
+import org.danielnixon.saferdom.Node
 
 import scala.scalajs.js
 

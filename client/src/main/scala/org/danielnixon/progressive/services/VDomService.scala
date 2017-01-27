@@ -2,7 +2,7 @@ package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
-import org.scalajs.dom.html.Element
+import org.danielnixon.saferdom.html.Element
 
 class VDomService(virtualDom: VirtualDom, vdomParser: VDomParser) {
   def update(element: Element, html: String): VTree = {

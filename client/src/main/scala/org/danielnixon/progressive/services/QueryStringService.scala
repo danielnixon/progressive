@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.services
 
-import org.scalajs.dom.html.{ Element, Form, Input }
+import org.danielnixon.saferdom.html.{ Element, Form, Input }
 import org.danielnixon.progressive.shared.Wart
 
 import scala.collection.immutable.Seq

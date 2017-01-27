@@ -1,13 +1,13 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.progressive.extensions.dom.{ ElementWrapper, NodeSelectorWrapper }
 import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
 import org.danielnixon.progressive.facades.es6.WeakMap
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.{ CssClasses, DataAttributes, RefreshSettings }
-import org.scalajs.dom.Element
-import org.scalajs.dom.raw.HTMLElement
+import org.danielnixon.saferdom.Element
+import org.danielnixon.saferdom.raw.HTMLElement
+import org.danielnixon.saferdom.implicits.lib._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -29,7 +29,7 @@ class RefreshService(
   private val vdomMap = new WeakMap[Element, VTree]
 
   private def vDomTarget(element: Element): Element = {
-    element.querySelectorOpt(s".${CssClasses.refreshContent}").getOrElse(element)
+    element.querySelector(s".${CssClasses.refreshContent}").getOrElse(element)
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))
@@ -42,7 +42,7 @@ class RefreshService(
 
     val alreadyRefreshing = refreshRequestMap.has(element)
 
-    element.getAttributeOpt(DataAttributes.refresh) match {
+    element.getAttribute(DataAttributes.refresh) match {
       case Some(url) if !alreadyRefreshing =>
         val request = ajaxService.get(url)
         refreshRequestMap.set(element, request)
@@ -82,7 +82,7 @@ class RefreshService(
   }
 
   def setupRefresh(element: Element): Unit = {
-    element.getAttributeOpt(DataAttributes.refresh).flatMap(RefreshSettings.fromJson) foreach { settings =>
+    element.getAttribute(DataAttributes.refresh).flatMap(RefreshSettings.fromJson) foreach { settings =>
 
       vdomMap.set(element, createVdom(element))
 

@@ -3,8 +3,8 @@ package org.danielnixon.progressive.services
 import org.danielnixon.progressive.shared.Wart
 
 import scala.collection.immutable.Seq
-import org.scalajs.dom.document
-import org.scalajs.dom.html.Form
+import org.danielnixon.saferdom.document
+import org.danielnixon.saferdom.html.Form
 import org.scalatest.{ Matchers, WordSpec }
 
 class QueryStringServiceSpec extends WordSpec with Matchers {

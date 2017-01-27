@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.progressive.extensions.dom.ElementWrapper
-import org.scalajs.dom.html
+import org.danielnixon.saferdom.html
+import org.danielnixon.saferdom.implicits.lib._
 
 import scala.concurrent.{ Future, Promise }
 import scala.scalajs.js.timers._
@@ -9,7 +9,7 @@ import scala.util.Success
 
 class AnimationService {
   private def transition(element: html.Element, show: Boolean, preserveHeight: Boolean, durationOpt: Option[Int]): Future[Unit] = {
-    val initialMinHeight = element.getAttributeOpt("data-initial-min-height") getOrElse {
+    val initialMinHeight = element.getAttribute("data-initial-min-height") getOrElse {
       val m = element.style.minHeight
       element.setAttribute("data-initial-min-height", m)
       m

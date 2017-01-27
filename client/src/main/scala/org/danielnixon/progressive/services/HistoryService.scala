@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.services
 
-import org.scalajs.dom.{ PopStateEvent, Window }
+import org.danielnixon.saferdom.{ PopStateEvent, Window }
 import org.danielnixon.progressive.shared.Wart
 
 import scala.scalajs.js.{ Dynamic, isUndefined }
