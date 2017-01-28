@@ -19,7 +19,8 @@ class UserAgentService(window: Window) {
       isDefined(window, "history") &&
       isDefined(window.history, "pushState") &&
       isDefined(window.document, "querySelector") &&
-      window.document.body.exists(b => isDefined(b, "matches"))
+      window.document.body.exists(b => isDefined(b, "matches")) &&
+      window.document.body.exists(b => isDefined(b, "closest"))
   }
 
   @SuppressWarnings(Array(Wart.AsInstanceOf))

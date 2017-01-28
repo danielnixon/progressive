@@ -1,12 +1,10 @@
 package org.danielnixon.progressive.extensions
 
-import org.danielnixon.progressive.facades.dom.ElementMatches.element2ElementMatches
+import org.danielnixon.progressive.facades.dom.ElementMatches
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.{ DOMList, Element, EventTarget, Node }
-import org.danielnixon.saferdom.implicits.lib.{ SaferNode, SaferDOMList }
+import org.danielnixon.saferdom.implicits.lib.SaferDOMList
 import org.danielnixon.saferdom.raw.Event
-
-import scala.annotation.tailrec
 
 package object dom {
 
@@ -32,19 +30,8 @@ package object dom {
   }
 
   implicit class ElementWrapper(val element: Element) extends AnyVal {
-
     def closest(selector: String): Option[Element] = {
-
-      @tailrec
-      def closestRec(elementOpt: Option[Element], selector: String): Option[Element] = {
-        elementOpt match {
-          case Some(e) if e.matches(selector) => Some(e)
-          case Some(e) => closestRec(new SaferNode(e).parentElement, selector) // TODO: Don't construct a SaferNode.
-          case None => None
-        }
-      }
-
-      closestRec(Some(element), selector)
+      Option(ElementMatches.element2ElementMatches(element).closest(selector))
     }
   }
 
@@ -52,13 +39,15 @@ package object dom {
 
     @SuppressWarnings(Array(Wart.Nothing))
     def on[T <: Event](events: String, selector: String)(handler: (T, Element) => Unit): Unit = {
-      eventTarget.addEventListener(events, (event: T) => {
 
+      val listener = (event: T) => {
         event.target match {
-          case element: Element if element.matches(selector) => handler(event, element)
+          case element: Element => element.closest(selector).foreach(closest => handler(event, closest))
           case _ =>
         }
-      })
+      }
+
+      eventTarget.addEventListener(events, listener)
     }
   }
 

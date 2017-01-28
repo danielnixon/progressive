@@ -8,11 +8,19 @@ import scala.language.implicitConversions
 
 /**
   * Facade for matches.
-  * @see https://developer.mozilla.org/en/docs/Web/API/Element/matches
   */
 @js.native
 trait ElementMatches extends Element {
+  /**
+    * @see https://developer.mozilla.org/en/docs/Web/API/Element/matches
+    */
   def matches(selector: String): Boolean = js.native
+
+  // TODO: Wrap in Option[Element].
+  /**
+    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+    */
+  def closest(selector: String): Element = js.native
 }
 
 object ElementMatches {
