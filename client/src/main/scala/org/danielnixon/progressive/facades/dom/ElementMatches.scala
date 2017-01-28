@@ -4,6 +4,7 @@ import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.Element
 
 import scala.scalajs.js
+import scala.language.implicitConversions
 
 /**
   * Facade for matches.
