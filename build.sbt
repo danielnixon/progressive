@@ -64,7 +64,6 @@ lazy val commonSettings = Seq(
     Wart.FinalCaseClass,
     Wart.JavaConversions,
     Wart.LeakingSealed,
-    Wart.ListOps,
     Wart.MutableDataStructures,
     Wart.Nothing,
     Wart.Null,
@@ -75,6 +74,7 @@ lazy val commonSettings = Seq(
     Wart.StringPlusAny,
     Wart.Throw,
     Wart.ToString,
+    Wart.TraversableOps,
     Wart.TryPartial,
     Wart.Var,
     Wart.While)
