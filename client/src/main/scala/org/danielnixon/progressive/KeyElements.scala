@@ -1,6 +1,6 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.saferdom.html.Element
+import org.danielnixon.saferdom.html.{ Body, Element }
 
 /**
   * Document elements that Progressive requires.
@@ -10,7 +10,7 @@ import org.danielnixon.saferdom.html.Element
   * @param errorElement An element that Progressive can use to display errors. Typically near the top of the page.
   */
 final case class KeyElements(
-  body: Element,
+  body: Body,
   announcementsElement: Element,
   errorElement: Element
 )

@@ -3,8 +3,8 @@ package org.danielnixon.progressive
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.{ Element, html }
-import org.danielnixon.saferdom.html.Form
-import org.danielnixon.saferdom.raw.HTMLElement
+import org.danielnixon.saferdom.html.{ Body, Form }
+import org.danielnixon.saferdom.implicits.lib._
 
 /**
   * Extension points to customize the behaviour of Progressive. You'll need to provide an implementation of
@@ -16,7 +16,7 @@ trait EventHandlers {
     * elements, etc. This method is invoked by Progressive exactly once per page load.
     * @param body The body element.
     */
-  def additionalSetupInitial(body: HTMLElement): Unit = ()
+  def additionalSetupInitial(body: Body): Unit = ()
 
   /**
     * Use this method to set up page elements that have been updated by ajax forms, links or refresh elements.
@@ -50,7 +50,7 @@ trait EventHandlers {
   @SuppressWarnings(Array(Wart.AsInstanceOf))
   def postFormSubmit(form: Form): Unit = {
     // Focus the first invalid form element (if any).
-    form.querySelectorAll("[aria-invalid=true]") foreach { node =>
+    form.querySelector("[aria-invalid=true]") foreach { node =>
       node.asInstanceOf[html.Element].focus()
     }
   }

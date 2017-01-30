@@ -7,7 +7,7 @@ import org.danielnixon.saferdom.{ Element, Event, MouseEvent, html }
 
 @SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(
-    additionalSetupInitial: html.Element => Unit,
+    additionalSetupInitial: html.Body => Unit,
     additionalSetup: Element => Unit
 ) {
 
@@ -20,7 +20,7 @@ class EventHandlerSetupService(
   }
 
   @SuppressWarnings(Array(Wart.Nothing))
-  def setupInitial(body: html.Element, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
+  def setupInitial(body: html.Body, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
 
     additionalSetupInitial(body)
 
