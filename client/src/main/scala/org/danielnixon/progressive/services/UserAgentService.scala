@@ -2,8 +2,7 @@ package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.Window
-import org.danielnixon.saferdom.implicits.lib._
-import org.danielnixon.saferdom.implicits.html._
+import org.danielnixon.saferdom.implicits._
 
 import scala.scalajs.js
 

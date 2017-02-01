@@ -3,7 +3,7 @@ package org.danielnixon.progressive.extensions
 import org.danielnixon.progressive.facades.dom.ElementMatches
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.{ DOMList, Element, EventTarget, Node }
-import org.danielnixon.saferdom.implicits.lib.SaferDOMList
+import org.danielnixon.saferdom.implicits.saferDOMList
 import org.danielnixon.saferdom.raw.Event
 
 package object dom {

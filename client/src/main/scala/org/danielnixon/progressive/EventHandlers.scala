@@ -4,7 +4,7 @@ import org.danielnixon.progressive.extensions.dom.NodeListSeq
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.{ Element, html }
 import org.danielnixon.saferdom.html.{ Body, Form }
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits._
 
 /**
   * Extension points to customize the behaviour of Progressive. You'll need to provide an implementation of

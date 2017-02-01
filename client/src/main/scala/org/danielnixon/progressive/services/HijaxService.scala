@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.saferdom._
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits.{ html => _, lib => _, _ }
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.extensions.dom._
 import org.danielnixon.progressive.shared.Wart

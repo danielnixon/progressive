@@ -5,8 +5,7 @@ import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.Window
 import org.danielnixon.saferdom.html.Element
 import org.danielnixon.saferdom.raw.HTMLFormElement
-import org.danielnixon.saferdom.implicits.html._
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits._
 
 class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentService: UserAgentService) {
 

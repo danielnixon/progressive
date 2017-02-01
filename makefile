@@ -7,4 +7,4 @@ dist:
 update:
 	ncu --upgradeAll
 
-.PHONY: all compile dist update clean uninstall debug
+.PHONY: all dist update

@@ -1,7 +1,7 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.saferdom.html
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits._
 
 import scala.concurrent.{ Future, Promise }
 import scala.scalajs.js.timers._

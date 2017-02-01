@@ -7,7 +7,7 @@ import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.{ CssClasses, DataAttributes, RefreshSettings }
 import org.danielnixon.saferdom.Element
 import org.danielnixon.saferdom.raw.HTMLElement
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue

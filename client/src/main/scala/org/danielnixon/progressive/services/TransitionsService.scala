@@ -5,7 +5,7 @@ import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
 import org.danielnixon.saferdom.{ Element, Window, html }
 import org.danielnixon.saferdom.raw.HTMLElement
-import org.danielnixon.saferdom.implicits.lib._
+import org.danielnixon.saferdom.implicits._
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
