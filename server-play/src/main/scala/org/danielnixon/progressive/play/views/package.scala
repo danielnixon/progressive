@@ -8,6 +8,8 @@ import play.twirl.api.Html
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
+import scala.language.implicitConversions
+
 /**
   * Twirl wrappers around ScalaTags views.
   */
@@ -38,11 +40,20 @@ package object views {
     applyAttributes(baseViews.progressiveTarget)
   }
 
-  private def applyAttributes(view: TypedTag[String], attributes: Seq[(String, String)] = Nil): Html = {
+  private def applyAttributes(view: TypedTag[String], attributes: Seq[(String, String)] = Nil): TypedTag[String] = {
     val attrs = attributes.map({ case (k, v) => attr(k) := v })
-    val viewWithAttrs = attrs.foldLeft(view) { (v, attr) =>
+    attrs.foldLeft(view) { (v, attr) =>
       v(attr)
     }
-    Html(viewWithAttrs.render)
   }
+
+  /**
+    * Implicit conversion from a ScalaTags Frag to a Twirl Html.
+    */
+  implicit def fragToHtml(frag: Frag): Html = play.twirl.api.Html(frag.render)
+
+  /**
+    * Implicit conversion from a Twirl Html to a ScalaTags Frag.
+    */
+  implicit def htmlToFrag(html: Html): RawFrag = raw(html.body)
 }

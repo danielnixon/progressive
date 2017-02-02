@@ -6,6 +6,7 @@ import org.danielnixon.progressive.shared.api.AjaxResponse
 import org.danielnixon.saferdom.{ Element, Window, html }
 import org.danielnixon.saferdom.raw.HTMLElement
 import org.danielnixon.saferdom.implicits._
+import scalatags.Text.all.raw
 
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -52,9 +53,9 @@ class TransitionsService(
     announce(message)
 
     targetOpt map { target =>
-      fadeIn(target, views.error(html).render, preRender)
+      fadeIn(target, views.error(raw(html)).render, preRender)
     } getOrElse {
-      fadeIn(errorElement, views.globalError(html).render, preRender)
+      fadeIn(errorElement, views.globalError(raw(html)).render, preRender)
     }
   }
 

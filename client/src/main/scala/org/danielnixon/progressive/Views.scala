@@ -1,6 +1,7 @@
 package org.danielnixon.progressive
 
 import scalatags.Text.TypedTag
+import scalatags.Text.all._
 
 /**
   * Views required by Progressive. You'll need to provide an implementation of this trait when initializing Progressive.
@@ -18,7 +19,7 @@ trait Views {
     * @param html The error markup to display to the user.
     * @return The error view.
     */
-  def error(html: String): TypedTag[String]
+  def error(html: Frag): TypedTag[String]
 
   /**
     * The global error view. This view will be displayed in the error element defined in [[KeyElements]] when an
@@ -26,5 +27,5 @@ trait Views {
     * @param html The error markup to display to the user.
     * @return The global error view.
     */
-  def globalError(html: String): TypedTag[String]
+  def globalError(html: Frag): TypedTag[String]
 }
