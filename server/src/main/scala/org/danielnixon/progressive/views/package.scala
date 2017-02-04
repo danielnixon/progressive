@@ -2,14 +2,13 @@ package org.danielnixon.progressive
 
 import org.danielnixon.progressive.shared.api._
 
-import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
 /**
   * ScalaTags views for Progressive forms, links, etc.
   */
 package object views {
-  def progressiveForm(formMethod: String, formAction: String, settings: FormSettings): TypedTag[String] = {
+  def progressiveForm(formMethod: String, formAction: String, settings: FormSettings): Tag = {
     form(
       method := formMethod,
       action := formAction,
@@ -17,7 +16,7 @@ package object views {
     )
   }
 
-  def progressiveSubmitButton(formMethod: String, formAction: String, settings: SubmitButtonSettings): TypedTag[String] = {
+  def progressiveSubmitButton(formMethod: String, formAction: String, settings: SubmitButtonSettings): Tag = {
     button(
       `type` := "submit",
       formmethod := formMethod,
@@ -26,22 +25,22 @@ package object views {
     )
   }
 
-  def progressiveLink(linkHref: String, settings: LinkSettings): TypedTag[String] = {
+  def progressiveLink(linkHref: String, settings: LinkSettings): Tag = {
     a(
       href := linkHref,
       attr(DataAttributes.progressive) := LinkSettings.asJson(settings)
     )
   }
 
-  def refresh(settings: RefreshSettings): TypedTag[String] = {
+  def refresh(settings: RefreshSettings): Tag = {
     div(attr(DataAttributes.refresh) := RefreshSettings.asJson(settings))
   }
 
-  def refreshContent: TypedTag[String] = {
+  def refreshContent: Tag = {
     div(cls := CssClasses.refreshContent)
   }
 
-  def progressiveTarget: TypedTag[String] = {
+  def progressiveTarget: Tag = {
     div(cls := CssClasses.target)
   }
 }

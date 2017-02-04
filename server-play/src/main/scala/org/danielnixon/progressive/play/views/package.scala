@@ -5,7 +5,6 @@ import org.danielnixon.progressive.{ views => baseViews }
 import play.api.mvc.Call
 import play.twirl.api.Html
 
-import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
 import scala.language.implicitConversions
@@ -15,32 +14,28 @@ import scala.language.implicitConversions
   */
 package object views {
   def progressiveForm(action: Call, settings: FormSettings, attributes: Seq[(String, String)] = Nil)(html: Html): Html = {
-    val baseView = baseViews.progressiveForm(action.method, action.url, settings)(raw(html.body))
+    val baseView = baseViews.progressiveForm(action.method, action.url, settings)(html)
     applyAttributes(baseView, attributes)
   }
 
   def progressiveSubmitButton(action: Call, settings: SubmitButtonSettings)(html: Html): Html = {
-    applyAttributes(baseViews.progressiveSubmitButton(action.method, action.url, settings)(raw(html.body)))
+    applyAttributes(baseViews.progressiveSubmitButton(action.method, action.url, settings)(html))
   }
 
   def progressiveLink(action: Call, settings: LinkSettings)(html: Html): Html = {
-    applyAttributes(baseViews.progressiveLink(action.toString, settings)(raw(html.body)))
+    applyAttributes(baseViews.progressiveLink(action.toString, settings)(html))
   }
 
   def refresh(url: Call, interval: Option[Int] = None, attributes: Seq[(String, String)] = Nil)(html: Html): Html = {
-    val baseView = baseViews.refresh(RefreshSettings(url.toString, interval))(raw(html.body))
+    val baseView = baseViews.refresh(RefreshSettings(url.toString, interval))(html)
     applyAttributes(baseView, attributes)
   }
 
-  def refreshContent(html: Html): Html = {
-    applyAttributes(baseViews.refreshContent(raw(html.body)))
-  }
+  def refreshContent(html: Html): Html = baseViews.refreshContent(html)
 
-  def progressiveTarget: Html = {
-    applyAttributes(baseViews.progressiveTarget)
-  }
+  def progressiveTarget: Html = baseViews.progressiveTarget
 
-  private def applyAttributes(view: TypedTag[String], attributes: Seq[(String, String)] = Nil): TypedTag[String] = {
+  private def applyAttributes(view: Tag, attributes: Seq[(String, String)] = Nil): Tag = {
     val attrs = attributes.map({ case (k, v) => attr(k) := v })
     attrs.foldLeft(view) { (v, attr) =>
       v(attr)
