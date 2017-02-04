@@ -96,6 +96,7 @@ lazy val server = (project in file("server")).
       "org.scalaz" %%% "scalaz-core" % scalazVersion
     )
   ).
+  disablePlugins(ScalaJSPlugin, ScalaJSWarts).
   dependsOn(sharedJvm)
 
 lazy val serverPlay = (project in file("server-play")).
@@ -110,6 +111,7 @@ lazy val serverPlay = (project in file("server-play")).
     ),
     dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0"
   ).
+  disablePlugins(ScalaJSPlugin, ScalaJSWarts).
   dependsOn(sharedJvm, server)
 
 lazy val client = (project in file("client")).
@@ -130,7 +132,10 @@ lazy val client = (project in file("client")).
       "org.webjars.npm" % "vdom-parser" % "1.3.4" / "dist.js",
       RuntimeDOM % Test
     ),
-    jsEnv := JSDOMNodeJSEnv().value
+    jsEnv := JSDOMNodeJSEnv().value,
+    wartremoverErrors ++= Seq(
+      ScalaJSWart.UndefOrOpsPartial
+    )
   ).
   enablePlugins(ScalaJSPlugin).
   disablePlugins(ScoverageSbtPlugin). // TODO https://github.com/scoverage/sbt-scoverage/issues/101
@@ -149,6 +154,7 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
       "io.circe" %%% "circe-generic" % circeVersion
     )
   ).
+  disablePlugins(ScalaJSWarts).
   disablePlugins(ScoverageSbtPlugin) // TODO https://github.com/scoverage/sbt-scoverage/issues/101
 
 lazy val sharedJvm = shared.jvm
