@@ -2,14 +2,14 @@ package org.danielnixon.progressive.shared.api
 
 import io.circe.{ Decoder, Encoder }
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
-import org.danielnixon.progressive.shared.Wart
+import org.danielnixon.progressive.shared.{ ExtraWart, Wart }
 
 /**
   * The target of an ajax form or link.
   */
 sealed trait Target
 
-@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing, ExtraWart.UntypedEquality))
 object Target {
 
   /**

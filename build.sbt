@@ -77,14 +77,19 @@ lazy val commonSettings = Seq(
     Wart.TraversableOps,
     Wart.TryPartial,
     Wart.Var,
-    Wart.While)
+    Wart.While,
+    ExtraWart.DateFormatPartial,
+    ExtraWart.EnumerationPartial,
+    ExtraWart.FutureObject,
+    ExtraWart.GenMapLikePartial,
+    ExtraWart.GenTraversableLikeOps,
+    ExtraWart.GenTraversableOnceOps,
+    ExtraWart.LegacyDateTimeCode,
+    ExtraWart.ScalaGlobalExecutionContext,
+    ExtraWart.StringOpsPartial,
+    ExtraWart.TraversableOnceOps,
+    ExtraWart.UntypedEquality)
 )
-
-lazy val root = Project(
-  id = "root",
-  base = file("."),
-  aggregate = Seq(server, serverPlay, client, sharedJs, sharedJvm)
-).settings(commonSettings: _*).settings(publishArtifact := false)
 
 lazy val server = (project in file("server")).
   settings(commonSettings: _*).
@@ -96,7 +101,7 @@ lazy val server = (project in file("server")).
       "org.scalaz" %%% "scalaz-core" % scalazVersion
     )
   ).
-  disablePlugins(ScalaJSPlugin, ScalaJSWarts).
+  disablePlugins(ScalaJSPlugin, ScalaJSWarts, PlayWarts).
   dependsOn(sharedJvm)
 
 lazy val serverPlay = (project in file("server-play")).
@@ -109,8 +114,23 @@ lazy val serverPlay = (project in file("server-play")).
       "com.typesafe.play" %% "play" % "2.5.12",
       "com.typesafe.play" %% "twirl-api" % "1.3.0"
     ),
-    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0"
+    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0",
+    wartremoverErrors ++= Seq(
+      PlayWart.AssetsObject,
+      PlayWart.CookiesPartial,
+      PlayWart.FlashPartial,
+      PlayWart.FormPartial,
+      PlayWart.HeadersPartial,
+      PlayWart.JavaApi,
+      PlayWart.JsLookupResultPartial,
+      PlayWart.JsReadablePartial,
+      PlayWart.LangObject,
+      PlayWart.MessagesObject,
+      PlayWart.PlayGlobalExecutionContext,
+      PlayWart.SessionPartial,
+      PlayWart.WSResponsePartial)
   ).
+  enablePlugins(PlayWarts).
   disablePlugins(ScalaJSPlugin, ScalaJSWarts).
   dependsOn(sharedJvm, server)
 
@@ -154,7 +174,7 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
       "io.circe" %%% "circe-generic" % circeVersion
     )
   ).
-  disablePlugins(ScalaJSWarts).
+  disablePlugins(ScalaJSWarts, PlayWarts).
   disablePlugins(ScoverageSbtPlugin) // TODO https://github.com/scoverage/sbt-scoverage/issues/101
 
 lazy val sharedJvm = shared.jvm

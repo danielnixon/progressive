@@ -1,5 +1,5 @@
 all:
-	sbt "such test"
+	sbt "so clean" "such test"
 
 dist:
 	sbt "so clean" "such test" "very publishSigned"
