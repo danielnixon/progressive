@@ -154,6 +154,7 @@ lazy val client = (project in file("client")).
     ),
     jsEnv := JSDOMNodeJSEnv().value,
     wartremoverErrors ++= Seq(
+      ScalaJSWart.ArrayPartial,
       ScalaJSWart.UndefOrOpsPartial
     )
   ).
