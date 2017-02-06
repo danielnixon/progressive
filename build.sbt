@@ -127,8 +127,7 @@ lazy val serverPlay = (project in file("server-play")).
       PlayWart.LangObject,
       PlayWart.MessagesObject,
       PlayWart.PlayGlobalExecutionContext,
-      PlayWart.SessionPartial,
-      PlayWart.WSResponsePartial)
+      PlayWart.SessionPartial)
   ).
   enablePlugins(PlayWarts).
   disablePlugins(ScalaJSPlugin, ScalaJSWarts).
@@ -159,7 +158,7 @@ lazy val client = (project in file("client")).
     )
   ).
   enablePlugins(ScalaJSPlugin).
-  disablePlugins(ScoverageSbtPlugin). // TODO https://github.com/scoverage/sbt-scoverage/issues/101
+  disablePlugins(ScoverageSbtPlugin, PlayWarts). // TODO https://github.com/scoverage/sbt-scoverage/issues/101
   dependsOn(sharedJs)
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
