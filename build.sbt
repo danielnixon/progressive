@@ -4,6 +4,8 @@ val scala212 = "2.12.1"
 val scalazVersion = "7.2.8"
 val circeVersion = "0.7.0"
 
+scalaVersion := scala211
+
 import scalariform.formatter.preferences._
 
 lazy val commonSettings = Seq(
@@ -142,7 +144,7 @@ lazy val client = (project in file("client")).
     persistLauncher := true,
     persistLauncher in Test := false,
     libraryDependencies ++= Seq(
-      "org.danielnixon" %%% "safer-dom" % "0.2",
+      "org.danielnixon" %%% "safer-dom" % "0.3.0",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
       "org.scalatest" %%% "scalatest" % "3.0.1" % Test
     ),
