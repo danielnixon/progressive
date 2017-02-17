@@ -24,7 +24,7 @@ class QueryStringService(formSerializer: FormSerializer) {
 
   def toQueryString(params: Seq[QueryStringParam]): String = {
     def hasValue(param: QueryStringParam) = {
-      param.value.filter(v => v.nonEmpty && v != "false").map { v =>
+      param.value.filter(v => v.nonEmpty && v =/= "false").map { v =>
         param.name -> v
       }
     }

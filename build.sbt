@@ -4,11 +4,13 @@ val scala212 = "2.12.1"
 val scalazVersion = "7.2.8"
 val circeVersion = "0.7.0"
 
-scalaVersion := scala211
+scalaVersion := scala212
 
 import scalariform.formatter.preferences._
 
 lazy val commonSettings = Seq(
+  scalaVersion := scala212,
+  crossScalaVersions := Seq(scala211, scala212),
   organization := "org.danielnixon.progressive",
   licenses := Seq("GNU General Public License, Version 3" -> url("http://www.gnu.org/licenses/gpl-3.0.html")),
   version := "0.15.0-SNAPSHOT",
@@ -96,11 +98,10 @@ lazy val commonSettings = Seq(
 lazy val server = (project in file("server")).
   settings(commonSettings: _*).
   settings(
-    scalaVersion := scala211,
-    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-server",
     libraryDependencies ++= Seq(
-      "org.scalaz" %%% "scalaz-core" % scalazVersion
+      "org.scalaz" %%% "scalaz-core" % scalazVersion,
+      "org.joda" % "joda-convert" % "1.8.1" // TODO: Compilation fails without this...
     )
   ).
   disablePlugins(ScalaJSPlugin, ScalaJSWarts, PlayWarts).
@@ -109,14 +110,10 @@ lazy val server = (project in file("server")).
 lazy val serverPlay = (project in file("server-play")).
   settings(commonSettings: _*).
   settings(
-    scalaVersion := scala211,
-    crossScalaVersions := Seq(scala211),
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.5.12",
-      "com.typesafe.play" %% "twirl-api" % "1.3.0"
+      "com.typesafe.play" %% "play" % "2.6.0-M1"
     ),
-    dependencyOverrides += "com.typesafe.play" %% "twirl-api" % "1.3.0",
     wartremoverErrors ++= Seq(
       PlayWart.AssetsObject,
       PlayWart.CookiesPartial,
@@ -138,8 +135,6 @@ lazy val serverPlay = (project in file("server-play")).
 lazy val client = (project in file("client")).
   settings(commonSettings: _*).
   settings(
-    scalaVersion := scala211,
-    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-client",
     persistLauncher := true,
     persistLauncher in Test := false,
@@ -166,8 +161,6 @@ lazy val client = (project in file("client")).
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(commonSettings: _*).
   settings(
-    scalaVersion := scala211,
-    crossScalaVersions := Seq(scala211, scala212),
     name := "progressive-shared",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "scalatags" % "0.6.2",
