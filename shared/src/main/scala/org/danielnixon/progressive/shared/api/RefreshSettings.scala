@@ -6,7 +6,7 @@ import org.danielnixon.progressive.shared.Wart
 
 final case class RefreshSettings(url: String, interval: Option[Int])
 
-@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+@SuppressWarnings(Array(Wart.Nothing))
 object RefreshSettings {
   implicit val decoder: Decoder[RefreshSettings] = deriveDecoder[RefreshSettings]
   implicit val encoder: Encoder[RefreshSettings] = deriveEncoder[RefreshSettings]

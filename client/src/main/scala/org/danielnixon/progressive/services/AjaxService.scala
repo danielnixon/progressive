@@ -23,7 +23,6 @@ class AjaxService {
 
   private val ajaxHeaders = Map(HeaderNames.X_REQUESTED_WITH -> HeaderValues.XML_HTTP_REQUEST)
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajax(method: String, url: String, data: Option[InputData], headers: Map[String, String]): AjaxRequest = {
 
     val (request, abort) = makeRequest(method, url, data, ajaxHeaders ++ headers)
@@ -47,7 +46,7 @@ class AjaxService {
   /**
     * Based on org.danielnixon.saferdom.ext.Ajax but exposes the underlying XMLHttpRequest so it can be aborted.
     */
-  @SuppressWarnings(Array(Wart.Any, Wart.AsInstanceOf))
+  @SuppressWarnings(Array(Wart.Any))
   private def makeRequest(
     method: String,
     url: String,

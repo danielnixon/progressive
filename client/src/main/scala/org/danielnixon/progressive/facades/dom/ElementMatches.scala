@@ -10,13 +10,12 @@ import scala.language.implicitConversions
   * Facade for matches.
   */
 @js.native
-trait ElementMatches extends Element {
+trait ElementMatches extends js.Object {
   /**
     * @see https://developer.mozilla.org/en/docs/Web/API/Element/matches
     */
   def matches(selector: String): Boolean = js.native
 
-  // TODO: Wrap in Option[Element].
   /**
     * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
     */

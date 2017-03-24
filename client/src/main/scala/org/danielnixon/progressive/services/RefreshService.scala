@@ -67,7 +67,7 @@ class RefreshService(
                 virtualDom.patch(target, patchObject)
 
                 // Re-bind event handlers, etc.
-                eventHandlerSetupService.setup(element, this)
+                eventHandlerSetupService.setup(element)
               }
             }
           }

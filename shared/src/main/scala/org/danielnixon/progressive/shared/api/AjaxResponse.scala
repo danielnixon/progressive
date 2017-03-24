@@ -14,7 +14,7 @@ import org.danielnixon.progressive.shared.Wart
   */
 final case class AjaxResponse(message: Option[String], html: Option[String], invalidForm: Option[String])
 
-@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+@SuppressWarnings(Array(Wart.Nothing))
 object AjaxResponse {
 
   implicit val decoder: Decoder[AjaxResponse] = deriveDecoder[AjaxResponse]

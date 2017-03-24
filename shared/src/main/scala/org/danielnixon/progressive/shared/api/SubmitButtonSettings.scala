@@ -9,7 +9,7 @@ final case class SubmitButtonSettings(
   busyMessage: Option[String] = None
 )
 
-@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+@SuppressWarnings(Array(Wart.Nothing))
 object SubmitButtonSettings {
   implicit val decoder: Decoder[SubmitButtonSettings] = deriveDecoder[SubmitButtonSettings]
   implicit val encoder: Encoder[SubmitButtonSettings] = deriveEncoder[SubmitButtonSettings]

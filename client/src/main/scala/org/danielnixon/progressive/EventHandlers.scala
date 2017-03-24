@@ -1,7 +1,6 @@
 package org.danielnixon.progressive
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.{ Element, html }
 import org.danielnixon.saferdom.html.{ Body, Form }
 import org.danielnixon.saferdom.implicits._
@@ -30,13 +29,13 @@ trait EventHandlers {
     * Code to execute before an ajax form has been submitted.
     * The default implementation resets any invalid form elements.
     * @param form The form.
+    * @param clicked The input or button that was clicked to trigger the form submit, if any.
     * @return True if the form should be submitted, false otherwise.
     */
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def preFormSubmit(form: Form): Boolean = {
+  def preFormSubmit(form: Form, clicked: Option[html.Element]): Boolean = {
     // Reset invalid form elements before resubmitting form.
-    form.querySelectorAll("[aria-invalid=true]") foreach { node =>
-      node.asInstanceOf[html.Element].removeAttribute("aria-invalid")
+    form.querySelectorAll("[aria-invalid=true]").collect({ case e: html.Element => e }).foreach { node =>
+      node.removeAttribute("aria-invalid")
     }
 
     true
@@ -46,12 +45,12 @@ trait EventHandlers {
     * Code to execute after an ajax form has been submitted.
     * The default implementation focuses the first invalid form element (if any).
     * @param form The form.
+    * @param clicked The input or button that was clicked to trigger the form submit, if any.
     */
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  def postFormSubmit(form: Form): Unit = {
+  def postFormSubmit(form: Form, clicked: Option[html.Element]): Unit = {
     // Focus the first invalid form element (if any).
-    form.querySelector("[aria-invalid=true]") foreach { node =>
-      node.asInstanceOf[html.Element].focus()
+    form.querySelector("[aria-invalid=true]").collect({ case e: html.Element => e }).foreach { node =>
+      node.focus()
     }
   }
 

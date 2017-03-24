@@ -18,7 +18,7 @@ final case class FormSettings(
   resetForm: Boolean = false
 )
 
-@SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+@SuppressWarnings(Array(Wart.Nothing))
 object FormSettings {
   implicit val decoder: Decoder[FormSettings] = deriveDecoder[FormSettings]
   implicit val encoder: Encoder[FormSettings] = deriveEncoder[FormSettings]

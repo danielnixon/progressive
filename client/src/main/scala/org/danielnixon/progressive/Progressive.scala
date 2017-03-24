@@ -1,6 +1,5 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.progressive.services._
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom
 
@@ -19,51 +18,21 @@ class Progressive {
   def initialize(
     views: Views,
     elements: KeyElements,
-    eventHandlers: EventHandlers
+    eventHandlers: Services => EventHandlers = defaultEventHandlers
   ): Unit = {
 
-    val userAgentService = new UserAgentService(saferdom.window)
+    lazy val events: EventHandlers = eventHandlers(services)
+    lazy val services: Services = new DefaultServices(views, elements, events)
 
-    if (userAgentService.meetsRequirements && dependenciesExist) {
-
-      val historyService = new HistoryService(saferdom.window)
-      val ajaxService = new AjaxService
-      val eventHandlerSetupService = new EventHandlerSetupService(eventHandlers.additionalSetupInitial, eventHandlers.additionalSetup)
-      val refreshService = new RefreshService(Global.virtualDom, Global.vdomParser, eventHandlerSetupService, ajaxService, eventHandlers.applyDiff)
-
-      val formSerializer = new FormSerializer
-
-      val hijaxService = new HijaxService(
-        saferdom.window,
-        new QueryStringService(formSerializer),
-        historyService,
-        userAgentService,
-        new TransitionsService(
-          saferdom.window,
-          elements.announcementsElement,
-          elements.errorElement,
-          new AnimationService,
-          views,
-          new VDomService(Global.virtualDom, Global.vdomParser)
-        ),
-        new FocusManagementService(saferdom.window, eventHandlers.scrollOffset _, userAgentService),
-        refreshService,
-        new EnableDisableService,
-        ajaxService,
-        eventHandlerSetupService,
-        formSerializer,
-        new EventService,
-        eventHandlers.preFormSubmit,
-        eventHandlers.postFormSubmit
-      )
-
-      historyService.initializeHistory()
-      saferdom.window.onpopstate = historyService.onPopState _
-
-      eventHandlerSetupService.setupInitial(elements.body, refreshService, hijaxService)
+    if (services.userAgentService.meetsRequirements && dependenciesExist) {
+      services.historyService.initializeHistory()
+      saferdom.window.onpopstate = services.historyService.onPopState _
+      services.eventHandlerSetupService.setupInitial(elements.body)
     }
   }
 
   @SuppressWarnings(Array(Wart.Any))
   private val dependenciesExist: Boolean = !Seq(Global.virtualDom, Global.vdomParser).exists(js.isUndefined)
+
+  private def defaultEventHandlers(services: Services) = new EventHandlers {}
 }

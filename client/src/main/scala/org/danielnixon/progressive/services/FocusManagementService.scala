@@ -1,7 +1,6 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.saferdom.Window
 import org.danielnixon.saferdom.html.Element
 import org.danielnixon.saferdom.raw.HTMLFormElement
@@ -44,11 +43,10 @@ class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentS
   }
 
   // Dismiss keyboard on iOS.
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def dismissKeyboard(formElement: HTMLFormElement): Unit = {
     if (userAgentService.isTouchDevice) {
       val inputs = "textarea, input[type=text], input[type=password], input[type=datetime], input[type=datetime-local], input[type=date], input[type=month], input[type=time], input[type=week], input[type=number], input[type=email], input[type=url], input[type=search], input[type=tel], input[type=color]"
-      formElement.querySelectorAll(inputs).foreach(_.asInstanceOf[Element].blur())
+      formElement.querySelectorAll(inputs).collect({ case e: Element => e }).foreach(_.blur())
     }
   }
 }

@@ -5,22 +5,23 @@ import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.DataAttributes
 import org.danielnixon.saferdom.{ Element, Event, MouseEvent, html }
 
-@SuppressWarnings(Array(Wart.AsInstanceOf))
 class EventHandlerSetupService(
+    refreshService: RefreshService,
+    hijaxService: HijaxService,
     additionalSetupInitial: html.Body => Unit,
     additionalSetup: Element => Unit
 ) {
 
-  def setup(element: Element, refreshService: RefreshService): Unit = {
+  def setup(element: Element): Unit = {
     additionalSetup(element)
 
-    element.querySelectorAll(s"[${DataAttributes.refresh}]") foreach { node =>
-      refreshService.setupRefresh(node.asInstanceOf[Element])
+    element.querySelectorAll(s"[${DataAttributes.refresh}]").collect({ case e: Element => e }) foreach { node =>
+      refreshService.setupRefresh(node)
     }
   }
 
-  @SuppressWarnings(Array(Wart.Nothing))
-  def setupInitial(body: html.Body, refreshService: RefreshService, hijaxService: HijaxService): Unit = {
+  @SuppressWarnings(Array(Wart.AsInstanceOf, Wart.Nothing))
+  def setupInitial(body: html.Body): Unit = {
 
     additionalSetupInitial(body)
 
@@ -36,6 +37,6 @@ class EventHandlerSetupService(
       hijaxService.ajaxFormSubmit(e, element.asInstanceOf[html.Form])
     }
 
-    setup(body, refreshService)
+    setup(body)
   }
 }

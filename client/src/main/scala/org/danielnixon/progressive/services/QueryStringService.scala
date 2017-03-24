@@ -1,7 +1,6 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.saferdom.html.{ Element, Form, Input }
-import org.danielnixon.progressive.shared.Wart
 
 import scala.collection.immutable.Seq
 import scalaz.Scalaz._
@@ -48,7 +47,6 @@ class QueryStringService(formSerializer: FormSerializer) {
     appendQueryString(path, newQueryString)
   }
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def paramsForQueryString(form: Form): Seq[QueryStringParam] = {
 
     def shouldInclude(element: Element) = {

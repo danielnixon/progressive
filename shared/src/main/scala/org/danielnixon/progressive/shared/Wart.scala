@@ -10,10 +10,3 @@ object Wart {
   final val OptionPartial = "org.wartremover.warts.OptionPartial"
   final val Throw = "org.wartremover.warts.Throw"
 }
-
-/**
-  * Wart names for use with SuppressWarnings annotation.
-  */
-object ExtraWart {
-  final val UntypedEquality = "org.danielnixon.extrawarts.UntypedEquality"
-}

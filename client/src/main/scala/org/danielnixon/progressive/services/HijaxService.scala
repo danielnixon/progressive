@@ -4,10 +4,10 @@ import org.danielnixon.saferdom._
 import org.danielnixon.saferdom.implicits.{ html => _, lib => _, _ }
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.extensions.dom._
-import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api._
 import org.danielnixon.progressive.shared.http.{ HeaderNames, MimeTypes }
 import org.danielnixon.saferdom.html.{ Anchor, Button, Form }
+import org.danielnixon.saferdom.raw.Element
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
@@ -27,8 +27,9 @@ class HijaxService(
     eventHandlerSetupService: EventHandlerSetupService,
     formSerializer: FormSerializer,
     eventService: EventService,
-    preFormSubmit: Form => Boolean,
-    postFormSubmit: Form => Unit
+    targetService: TargetService,
+    preFormSubmit: (Form, Option[html.Element]) => Boolean,
+    postFormSubmit: (Form, Option[html.Element]) => Unit
 ) {
 
   private def updateQueryString(params: Seq[QueryStringParam]): String = {
@@ -37,25 +38,12 @@ class HijaxService(
     queryStringService.updateQueryString(path, search, params)
   }
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
-  private def getTargetElement(element: Element, target: Target): Option[html.Element] = {
-    val targetElement = target match {
-      case Target.Next => element.nextElementSibling
-      case Target.Parent => element.parentElement
-      case Target.ChildTarget => element.querySelector(s".${CssClasses.target}")
-      case Target.ClosestRefresh => element.closest(s"[${DataAttributes.refresh}]")
-    }
-
-    targetElement.map(_.asInstanceOf[html.Element])
-  }
-
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxLinkClick(e: MouseEvent, element: Anchor): Unit = {
 
     if (eventService.shouldHijackLinkClick(e)) {
       element.getAttribute(DataAttributes.progressive).flatMap(LinkSettings.fromJson) foreach { settings =>
 
-        val targetOpt = getTargetElement(element, settings.target)
+        val targetOpt = targetService.getTargetElement(element, settings.target)
         val queryStringArray = queryStringService.extractQueryStringParams(element.href)
         val newUri = updateQueryString(queryStringArray)
         historyService.pushState(newUri)
@@ -77,24 +65,22 @@ class HijaxService(
   }
 
   private def clearClickedButtons(form: Element) = {
-    val submitButtons = form.querySelectorAll("button[type=submit]").map(_.asInstanceOf[Button])
+    val submitButtons = form.querySelectorAll("button[type=submit]").collect({ case b: Button => b })
     submitButtons.foreach(_.removeAttribute("data-clicked"))
   }
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxSubmitButtonClick(button: Button): Unit = {
     button.closest("form").foreach(clearClickedButtons)
     button.setAttribute("data-clicked", "true")
   }
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   def ajaxFormSubmit(e: Event, form: Form): Unit = {
 
     val result = form.getAttribute(DataAttributes.progressive).flatMap(FormSettings.fromJson) match {
       case None => false
       case Some(formSettings) =>
 
-        val submitButton = form.querySelector("button[type=submit][data-clicked]").map(_.asInstanceOf[Button])
+        val submitButton = form.querySelector("button[type=submit][data-clicked]").collect({ case b: Button => b })
         clearClickedButtons(form)
         val confirmed = formSettings.confirmMessage.forall(window.confirm)
 
@@ -106,9 +92,9 @@ class HijaxService(
           if (!formSettings.ajax) {
             true
           } else {
-            if (preFormSubmit(form)) {
+            if (preFormSubmit(form, submitButton)) {
               val fut = submitAjaxForm(form, formSettings, submitButton)
-              fut.onComplete(_ => postFormSubmit(form))
+              fut.onComplete(_ => postFormSubmit(form, submitButton))
             }
             false
           }
@@ -120,7 +106,6 @@ class HijaxService(
     }
   }
 
-  @SuppressWarnings(Array(Wart.AsInstanceOf))
   private def submitAjaxForm(form: Form, formSettings: FormSettings, submitButton: Option[html.Button]): Future[Unit] = {
 
     val settings = mergeSettings(formSettings, submitButton)
@@ -138,7 +123,7 @@ class HijaxService(
     }
 
     val trigger = submitButton.getOrElse(form)
-    val getTarget = (getTargetElement _).curried(trigger)
+    val getTarget = (targetService.getTargetElement _).curried(trigger)
     val targetOpt = settings.target.flatMap(getTarget)
     val refreshTargetOpt = settings.refreshTarget.flatMap(getTarget)
 
@@ -151,7 +136,11 @@ class HijaxService(
     val isFileUpload = form.enctype === MimeTypes.FORM_DATA
     val request = makeRequest(form, method, serializedForm, targetAction, isFileUpload).future
 
-    val elemToRemove = if (settings.remove) trigger.closest(s".${CssClasses.removable}").map(_.asInstanceOf[html.Element]) else None
+    val elemToRemove = if (settings.remove) {
+      trigger.closest(s".${CssClasses.removable}").collect({ case e: html.Element => e })
+    } else {
+      None
+    }
     val elemToRemoveClosestRefresh = elemToRemove.flatMap(_.closest(s"[${DataAttributes.refresh}]"))
     elemToRemoveClosestRefresh.foreach(refreshService.invalidate)
 
@@ -169,7 +158,7 @@ class HijaxService(
     }
   }
 
-  private def mergeSettings(formSettings: FormSettings, submitButton: Option[Button]): FormSettings = {
+  private def mergeSettings(formSettings: FormSettings, submitButton: Option[Element]): FormSettings = {
 
     val submitButtonSettings = submitButton.flatMap { e =>
       e.getAttribute(DataAttributes.progressive).flatMap(SubmitButtonSettings.fromJson)
@@ -220,7 +209,7 @@ class HijaxService(
     busyMessage: Option[String],
     form: Option[html.Form]
   ): Future[Unit] = {
-    val preRender = (target: Element) => eventHandlerSetupService.setup(target, refreshService)
+    val preRender = (target: Element) => eventHandlerSetupService.setup(target)
 
     enableDisableService.disable(trigger)
     targetOpt.foreach(refreshService.pauseAutoRefresh)

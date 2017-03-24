@@ -13,7 +13,11 @@ class FormSerializer {
   def serializeSeq(form: Form): Seq[(Element, String, String)] = {
     form.elements.to[Seq] flatMap {
       case x: Select if x.name.nonEmpty && !x.disabled =>
-        if (x.multiple) x.options.filter(_.selected).map(opt => (x, x.name, opt.value)) else Seq((x, x.name, x.value))
+        if (x.multiple) {
+          x.options.filter(_.selected).map(opt => (x, x.name, opt.value))
+        } else {
+          Seq((x, x.name, x.value))
+        }
       case x: Input if x.name.nonEmpty && !x.disabled =>
         if (x.`type` === "checkbox" || x.`type` === "radiobutton") {
           if (x.checked) Seq((x, x.name, x.value)) else Nil
@@ -27,7 +31,6 @@ class FormSerializer {
       case x: Button if x.name.nonEmpty && !x.disabled =>
         Seq((x, x.name, x.value))
       case _ => Nil
-
     }
   }
   // scalastyle:on cyclomatic.complexity
