@@ -3,12 +3,14 @@ package org.danielnixon.progressive.facades.virtualdom
 import org.danielnixon.saferdom.Node
 
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSGlobal
 
 /**
   * Facade for virtual-dom.
   * @see https://github.com/Matt-Esch/virtual-dom
   */
 @js.native
+@JSGlobal
 class VirtualDom extends js.Object {
   def diff(previous: VTree, current: VTree): PatchObject = js.native
 
@@ -16,7 +18,9 @@ class VirtualDom extends js.Object {
 }
 
 @js.native
+@JSGlobal
 class VTree extends js.Object
 
 @js.native
+@JSGlobal
 class PatchObject extends js.Object

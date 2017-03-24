@@ -1,7 +1,7 @@
 val scala211 = "2.11.8"
 val scala212 = "2.12.1"
 
-val scalazVersion = "7.2.8"
+val scalazVersion = "7.2.10"
 val circeVersion = "0.7.0"
 
 scalaVersion := scala212
@@ -112,7 +112,7 @@ lazy val serverPlay = (project in file("server-play")).
   settings(
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.6.0-M1"
+      "com.typesafe.play" %% "play" % "2.6.0-M2"
     ),
     wartremoverErrors ++= Seq(
       PlayWart.AssetsObject,
@@ -136,8 +136,6 @@ lazy val client = (project in file("client")).
   settings(commonSettings: _*).
   settings(
     name := "progressive-client",
-    persistLauncher := true,
-    persistLauncher in Test := false,
     libraryDependencies ++= Seq(
       "org.danielnixon" %%% "safer-dom" % "0.3.0",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
@@ -163,7 +161,7 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(
     name := "progressive-shared",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "scalatags" % "0.6.2",
+      "com.lihaoyi" %%% "scalatags" % "0.6.3",
       "io.circe" %%% "circe-core" % circeVersion,
       "io.circe" %%% "circe-parser" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion
