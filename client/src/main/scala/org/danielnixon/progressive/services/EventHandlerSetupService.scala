@@ -6,8 +6,8 @@ import org.danielnixon.progressive.shared.api.DataAttributes
 import org.danielnixon.saferdom.{ Element, Event, MouseEvent, html }
 
 class EventHandlerSetupService(
-    refreshService: RefreshService,
-    hijaxService: HijaxService,
+    refreshService: => RefreshService,
+    hijaxService: => HijaxService,
     additionalSetupInitial: html.Body => Unit,
     additionalSetup: Element => Unit
 ) {
