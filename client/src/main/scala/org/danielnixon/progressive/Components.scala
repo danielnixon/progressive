@@ -1,7 +1,7 @@
 package org.danielnixon.progressive
 
+import org.scalajs.dom.window
 import org.danielnixon.progressive.services._
-import org.danielnixon.saferdom
 
 trait Components {
   this: EventHandlers =>
@@ -10,16 +10,16 @@ trait Components {
 
   def elements: KeyElements
 
-  lazy val userAgentService: UserAgentService = new UserAgentService(saferdom.window)
+  lazy val userAgentService: UserAgentService = new UserAgentService(window)
 
-  lazy val historyService = new HistoryService(saferdom.window)
+  lazy val historyService = new HistoryService(window)
 
   lazy val formSerializer = new FormSerializer
 
   lazy val eventService: EventService = new EventService
 
   lazy val focusManagementService: FocusManagementService =
-    new FocusManagementService(saferdom.window, scrollOffset _, userAgentService)
+    new FocusManagementService(window, scrollOffset _, userAgentService)
 
   lazy val ajaxService: AjaxService = new AjaxService
 
@@ -30,12 +30,12 @@ trait Components {
 
   lazy val hijaxService: HijaxService = {
     new HijaxService(
-      saferdom.window,
+      window,
       new QueryStringService(formSerializer),
       historyService,
       userAgentService,
       new TransitionsService(
-        saferdom.window,
+        window,
         elements.announcementsElement,
         elements.errorElement,
         new AnimationService,

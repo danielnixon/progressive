@@ -3,7 +3,7 @@ package org.danielnixon.progressive.services
 import org.danielnixon.progressive.extensions.dom.{ EventTargetWrapper, NodeListSeq }
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.DataAttributes
-import org.danielnixon.saferdom.{ Element, Event, MouseEvent, html }
+import org.scalajs.dom.{ Element, Event, MouseEvent, html }
 
 class EventHandlerSetupService(
     refreshService: => RefreshService,

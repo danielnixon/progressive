@@ -2,9 +2,9 @@ package org.danielnixon.progressive.extensions
 
 import org.danielnixon.progressive.facades.dom.ElementMatches
 import org.danielnixon.progressive.shared.Wart
-import org.danielnixon.saferdom.{ DOMList, Element, EventTarget, Node }
+import org.scalajs.dom.{ DOMList, Element, EventTarget, Node }
 import org.danielnixon.saferdom.implicits.saferDOMList
-import org.danielnixon.saferdom.raw.Event
+import org.scalajs.dom.raw.Event
 
 package object dom {
 
@@ -17,7 +17,7 @@ package object dom {
     @SuppressWarnings(Array(Wart.OptionPartial))
     override def foreach[U](f: T => U): Unit = {
       for (i <- 0 until nodes.length) {
-        f(nodes.item(i).get)
+        f(nodes.item(i))
       }
     }
 
@@ -25,7 +25,7 @@ package object dom {
 
     @SuppressWarnings(Array(Wart.Throw))
     override def apply(idx: Int): T = {
-      nodes.item(idx).getOrElse(throw new IndexOutOfBoundsException(idx.toString))
+      nodes.itemOpt(idx).getOrElse(throw new IndexOutOfBoundsException(idx.toString))
     }
   }
 

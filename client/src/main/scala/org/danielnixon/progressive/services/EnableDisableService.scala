@@ -1,8 +1,8 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.saferdom.Element
-import org.danielnixon.saferdom.html.{ Button, Form, Input }
+import org.scalajs.dom.Element
+import org.scalajs.dom.html.{ Button, Form, Input }
 
 import scalaz._
 import Scalaz._

@@ -1,8 +1,8 @@
 package org.danielnixon.progressive
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.saferdom.{ Element, html }
-import org.danielnixon.saferdom.html.{ Body, Form }
+import org.scalajs.dom.{ Element, html }
+import org.scalajs.dom.html.{ Body, Form }
 import org.danielnixon.saferdom.implicits._
 
 /**
@@ -49,7 +49,7 @@ trait EventHandlers {
     */
   def postFormSubmit(form: Form, clicked: Option[html.Element]): Unit = {
     // Focus the first invalid form element (if any).
-    form.querySelector("[aria-invalid=true]").collect({ case e: html.Element => e }).foreach { node =>
+    form.querySelectorOpt("[aria-invalid=true]").collect({ case e: html.Element => e }).foreach { node =>
       node.focus()
     }
   }

@@ -7,6 +7,7 @@ import play.twirl.api.Html
 
 import scalatags.Text.all._
 
+import scala.collection.immutable.Seq
 import scala.language.implicitConversions
 
 /**

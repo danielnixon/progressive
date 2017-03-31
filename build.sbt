@@ -137,7 +137,7 @@ lazy val client = (project in file("client")).
   settings(
     name := "progressive-client",
     libraryDependencies ++= Seq(
-      "org.danielnixon" %%% "safer-dom" % "0.3.0",
+      "org.danielnixon" %%% "safer-dom" % "0.4.0",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
       "org.scalatest" %%% "scalatest" % "3.0.1" % Test
     ),

@@ -1,11 +1,12 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.saferdom
-import org.danielnixon.saferdom.ext.Ajax.InputData
+import org.scalajs.dom.ext.Ajax.InputData
+import org.scalajs.dom.raw.XMLHttpRequest
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
 import org.danielnixon.progressive.shared.api.AjaxResponse
 import org.danielnixon.progressive.shared.http.{ HeaderNames, HeaderValues }
+import org.scalajs.dom.Event
 
 import scala.concurrent.{ Future, Promise }
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -44,7 +45,7 @@ class AjaxService {
   }
 
   /**
-    * Based on org.danielnixon.saferdom.ext.Ajax but exposes the underlying XMLHttpRequest so it can be aborted.
+    * Based on org.scalajs.dom.ext.Ajax but exposes the underlying XMLHttpRequest so it can be aborted.
     */
   @SuppressWarnings(Array(Wart.Any))
   private def makeRequest(
@@ -52,11 +53,11 @@ class AjaxService {
     url: String,
     data: Option[InputData],
     headers: Map[String, String]
-  ): (Future[saferdom.XMLHttpRequest], () => Unit) = {
-    val req = new saferdom.XMLHttpRequest()
-    val promise = Promise[saferdom.XMLHttpRequest]()
+  ): (Future[XMLHttpRequest], () => Unit) = {
+    val req = new XMLHttpRequest()
+    val promise = Promise[XMLHttpRequest]()
 
-    req.onreadystatechange = { (e: saferdom.Event) =>
+    req.onreadystatechange = { (e: Event) =>
       if (req.readyState === 4) {
         if ((req.status >= 200 && req.status < 300) || req.status === 304) {
           promise.success(req)

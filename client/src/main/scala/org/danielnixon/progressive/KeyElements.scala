@@ -1,6 +1,6 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.saferdom.html.{ Body, Element }
+import org.scalajs.dom.html.{ Body, Element }
 
 /**
   * Document elements that Progressive requires.

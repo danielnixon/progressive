@@ -1,6 +1,6 @@
 package org.danielnixon.progressive.services
 
-import org.danielnixon.saferdom.html.{ Element, Form, Input }
+import org.scalajs.dom.html.{ Element, Form, Input }
 
 import scala.collection.immutable.Seq
 import scalaz.Scalaz._

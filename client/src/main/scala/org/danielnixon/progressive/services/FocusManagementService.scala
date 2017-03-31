@@ -1,9 +1,9 @@
 package org.danielnixon.progressive.services
 
 import org.danielnixon.progressive.extensions.dom.NodeListSeq
-import org.danielnixon.saferdom.Window
-import org.danielnixon.saferdom.html.Element
-import org.danielnixon.saferdom.raw.HTMLFormElement
+import org.scalajs.dom.Window
+import org.scalajs.dom.html.Element
+import org.scalajs.dom.raw.HTMLFormElement
 import org.danielnixon.saferdom.implicits._
 
 class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentService: UserAgentService) {
@@ -22,7 +22,7 @@ class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentS
     val newY = {
       val rect = element.getBoundingClientRect
       val scrollTop = window.pageYOffset
-      val clientTop = window.document.body.map(_.clientTop).getOrElse(0)
+      val clientTop = window.document.bodyOpt.map(_.clientTop).getOrElse(0)
 
       rect.top + scrollTop - clientTop - scrollOffset()
     }
@@ -39,7 +39,7 @@ class FocusManagementService(window: Window, scrollOffset: () => Int, userAgentS
   }
 
   def anythingHasFocus: Boolean = {
-    window.document.querySelector(":focus").isDefined
+    window.document.querySelectorOpt(":focus").isDefined
   }
 
   // Dismiss keyboard on iOS.

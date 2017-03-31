@@ -1,8 +1,10 @@
 package org.danielnixon.progressive
 
-import org.danielnixon.progressive.shared.Wart
-import org.danielnixon.saferdom
+import org.scalajs.dom.window
 
+import org.danielnixon.progressive.shared.Wart
+
+import scala.collection.immutable.Seq
 import scala.scalajs.js
 
 /**
@@ -16,7 +18,7 @@ class Progressive {
   def initialize(components: Components): Unit = {
     if (components.userAgentService.meetsRequirements && dependenciesExist) {
       components.historyService.initializeHistory()
-      saferdom.window.onpopstate = components.historyService.onPopState _
+      window.onpopstate = components.historyService.onPopState _
       components.eventHandlerSetupService.setupInitial(components.elements.body)
     }
   }
