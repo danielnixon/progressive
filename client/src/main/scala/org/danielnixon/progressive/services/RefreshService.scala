@@ -4,7 +4,7 @@ import org.danielnixon.progressive.extensions.virtualdom.PatchObjectWrapper
 import org.danielnixon.progressive.facades.es6.WeakMap
 import org.danielnixon.progressive.facades.virtualdom.{ VDomParser, VTree, VirtualDom }
 import org.danielnixon.progressive.shared.Wart
-import org.danielnixon.progressive.shared.api.{ CssClasses, DataAttributes, RefreshSettings }
+import org.danielnixon.progressive.shared.api._
 import org.scalajs.dom.Element
 import org.scalajs.dom.raw.HTMLElement
 import org.danielnixon.saferdom.implicits._
@@ -25,7 +25,7 @@ class RefreshService(
     val paused = "data-paused"
   }
 
-  private val refreshRequestMap = new WeakMap[Element, AjaxRequest]
+  private val refreshRequestMap = new WeakMap[Element, AjaxRequest[AjaxResponse]]
   private val vdomMap = new WeakMap[Element, VTree]
 
   private def vDomTarget(element: Element): Element = {

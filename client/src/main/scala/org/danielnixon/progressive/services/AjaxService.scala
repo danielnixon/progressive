@@ -1,10 +1,11 @@
 package org.danielnixon.progressive.services
 
+import io.circe.Decoder
 import org.scalajs.dom.ext.Ajax.InputData
 import org.scalajs.dom.raw.XMLHttpRequest
 import org.danielnixon.progressive.extensions.core.StringWrapper
 import org.danielnixon.progressive.shared.Wart
-import org.danielnixon.progressive.shared.api.AjaxResponse
+import org.danielnixon.progressive.shared.api.{ AjaxResponse, Json }
 import org.danielnixon.progressive.shared.http.{ HeaderNames, HeaderValues }
 import org.scalajs.dom.Event
 
@@ -18,30 +19,43 @@ final case class AjaxRequestException(message: String, html: String, invalidForm
 
 // ScalaJSDefined so that it can be stored in a WeakMap.
 @ScalaJSDefined
-final class AjaxRequest(val future: Future[AjaxResponse], val abort: () => Unit) extends js.Object
+final class AjaxRequest[T](val future: Future[T], val abort: () => Unit) extends js.Object
 
 class AjaxService {
 
   private val ajaxHeaders = Map(HeaderNames.X_REQUESTED_WITH -> HeaderValues.XML_HTTP_REQUEST)
 
-  def ajax(method: String, url: String, data: Option[InputData], headers: Map[String, String]): AjaxRequest = {
+  def ajax(method: String, url: String, data: Option[InputData], headers: Map[String, String]): AjaxRequest[AjaxResponse] = {
+    ajaxCustom[AjaxResponse](method, url, data, headers)(AjaxResponse.decoder)
+  }
+
+  def ajaxCustom[A](
+    method: String,
+    url: String,
+    data: Option[InputData],
+    headers: Map[String, String]
+  )(implicit d: Decoder[A]): AjaxRequest[A] = {
 
     val (request, abort) = makeRequest(method, url, data, ajaxHeaders ++ headers)
 
     val fut = request flatMap { response =>
-      AjaxResponse.fromJson(response.responseText) match {
+      Json.fromJson(response.responseText) match {
         case Some(ajaxResponse) =>
           Future.successful(ajaxResponse)
         case None =>
-          Future.failed[AjaxResponse](AjaxRequestException("Could not parse.", "Could not parse.", None))
+          Future.failed[A](AjaxRequestException("Could not parse.", "Could not parse.", None))
       }
     }
 
     new AjaxRequest(fut, abort)
   }
 
-  def get(url: String): AjaxRequest = {
-    ajax("GET", url, None, Map.empty[String, String])
+  def get(url: String): AjaxRequest[AjaxResponse] = {
+    getCustom[AjaxResponse](url)(AjaxResponse.decoder)
+  }
+
+  def getCustom[A](url: String)(implicit d: Decoder[A]): AjaxRequest[A] = {
+    ajaxCustom[A]("GET", url, None, Map.empty[String, String])
   }
 
   /**

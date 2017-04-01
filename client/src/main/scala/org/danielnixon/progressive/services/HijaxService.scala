@@ -171,7 +171,13 @@ class HijaxService(
     )
   }
 
-  private def makeRequest(formElement: Form, method: String, serializedForm: String, targetAction: String, isFileUpload: Boolean): AjaxRequest = {
+  private def makeRequest(
+    formElement: Form,
+    method: String,
+    serializedForm: String,
+    targetAction: String,
+    isFileUpload: Boolean
+  ): AjaxRequest[AjaxResponse] = {
     val headers = if (isFileUpload) Map.empty[String, String] else Map(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
     ajaxService.ajax(method, targetAction, Some(if (isFileUpload) new FormData(formElement) else serializedForm), headers)
   }
