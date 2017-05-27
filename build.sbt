@@ -1,8 +1,8 @@
-val scala211 = "2.11.8"
-val scala212 = "2.12.1"
+val scala211 = "2.11.11"
+val scala212 = "2.12.2"
 
-val scalazVersion = "7.2.10"
-val circeVersion = "0.7.0"
+val scalazVersion = "7.2.13"
+val circeVersion = "0.8.0"
 
 scalaVersion := scala212
 
@@ -48,10 +48,14 @@ lazy val commonSettings = Seq(
     "-Xfuture",
     "-Ywarn-adapted-args",
     "-Ywarn-inaccessible",
-    "-Ywarn-unused",
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 12)) => "-Ywarn-unused:-params,_"
+      case _ => "-Ywarn-unused"
+    },
     "-Ywarn-unused-import",
     "-Ywarn-numeric-widen",
-    "-Ywarn-nullary-override"),
+    "-Ywarn-nullary-override"
+  ),
   // scalariform
   scalariformPreferences := scalariformPreferences.value
     .setPreference(DoubleIndentClassDeclaration, true)
@@ -112,7 +116,7 @@ lazy val serverPlay = (project in file("server-play")).
   settings(
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.6.0-M3"
+      "com.typesafe.play" %% "play" % "2.6.0-RC1"
     ),
     wartremoverErrors ++= Seq(
       PlayWart.AssetsObject,
@@ -139,7 +143,7 @@ lazy val client = (project in file("client")).
     libraryDependencies ++= Seq(
       "org.danielnixon" %%% "safer-dom" % "0.4.0",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
-      "org.scalatest" %%% "scalatest" % "3.0.1" % Test
+      "org.scalatest" %%% "scalatest" % "3.0.3" % Test
     ),
     jsDependencies ++= Seq(
       "org.webjars.npm" % "virtual-dom" % "2.1.1" / "virtual-dom.js",
@@ -161,7 +165,7 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(
     name := "progressive-shared",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "scalatags" % "0.6.3",
+      "com.lihaoyi" %%% "scalatags" % "0.6.5",
       "io.circe" %%% "circe-core" % circeVersion,
       "io.circe" %%% "circe-parser" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion

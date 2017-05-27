@@ -5,6 +5,6 @@ dist:
 	sbt "so clean" "such test" "very publishSigned"
 
 update:
-	ncu --upgradeAll
+	ncu --upgradeAll && yarn upgrade
 
 .PHONY: all dist update
