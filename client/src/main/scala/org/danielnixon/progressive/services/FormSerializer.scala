@@ -8,28 +8,27 @@ import Scalaz._
 import scala.collection.immutable.Seq
 import scala.scalajs.js.URIUtils
 
-// TODO: disabled shouldn't be UndefOr
 class FormSerializer {
   // scalastyle:off cyclomatic.complexity
   def serializeSeq(form: Form): Seq[(Element, String, String)] = {
     form.elements.to[Seq] flatMap {
-      case x: Select if x.name.nonEmpty && !x.disabled.getOrElse(false) =>
+      case x: Select if x.name.nonEmpty && !x.disabled =>
         if (x.multiple) {
           x.options.filter(_.selected).map(opt => (x, x.name, opt.value))
         } else {
           Seq((x, x.name, x.value))
         }
-      case x: Input if x.name.nonEmpty && !x.disabled.getOrElse(false) =>
+      case x: Input if x.name.nonEmpty && !x.disabled =>
         if (x.`type` === "checkbox" || x.`type` === "radiobutton") {
           if (x.checked) Seq((x, x.name, x.value)) else Nil
         } else {
           Seq((x, x.name, x.value))
         }
-      case x: Input if x.name.nonEmpty && !x.disabled.getOrElse(false) =>
+      case x: Input if x.name.nonEmpty && !x.disabled =>
         if (x.`type` =/= "file") Seq((x, x.name, x.value)) else Nil
-      case x: TextArea if x.name.nonEmpty && !x.disabled.getOrElse(false) =>
+      case x: TextArea if x.name.nonEmpty && !x.disabled =>
         Seq((x, x.name, x.value))
-      case x: Button if x.name.nonEmpty && !x.disabled.getOrElse(false) =>
+      case x: Button if x.name.nonEmpty && !x.disabled =>
         Seq((x, x.name, x.value))
       case _ => Nil
     }

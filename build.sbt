@@ -116,7 +116,7 @@ lazy val serverPlay = (project in file("server-play")).
   settings(
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.6.0-RC1"
+      "com.typesafe.play" %% "play" % "2.6.0-RC2"
     ),
     wartremoverErrors ++= Seq(
       PlayWart.AssetsObject,
@@ -141,16 +141,17 @@ lazy val client = (project in file("client")).
   settings(
     name := "progressive-client",
     libraryDependencies ++= Seq(
-      "org.danielnixon" %%% "safer-dom" % "0.4.0",
+      "org.scala-js" %%% "scalajs-dom" % "0.9.2",
+      "org.danielnixon" %%% "safer-dom" % "0.5.0",
       "org.scalaz" %%% "scalaz-core" % scalazVersion,
       "org.scalatest" %%% "scalatest" % "3.0.3" % Test
     ),
     jsDependencies ++= Seq(
       "org.webjars.npm" % "virtual-dom" % "2.1.1" / "virtual-dom.js",
-      "org.webjars.npm" % "vdom-parser" % "1.3.4" / "dist.js",
+      "org.webjars.npm" % "vdom-parser" % "1.4.1" / "dist.js",
       RuntimeDOM % Test
     ),
-    jsEnv := JSDOMNodeJSEnv().value,
+    jsEnv := new org.scalajs.jsenv.nodejs.JSDOMNodeJSEnv,
     wartremoverErrors ++= Seq(
       ScalaJSWart.ArrayPartial,
       ScalaJSWart.UndefOrOpsPartial
