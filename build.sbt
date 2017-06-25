@@ -116,7 +116,7 @@ lazy val serverPlay = (project in file("server-play")).
   settings(
     name := "progressive-server-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.6.0-RC2"
+      "com.typesafe.play" %% "play" % "2.6.0"
     ),
     wartremoverErrors ++= Seq(
       PlayWart.AssetsObject,
